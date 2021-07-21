@@ -101,15 +101,19 @@
                  Text="{Binding CurrentJObject.First, Converter={StaticResource JsonValueConverter}, Mode=TwoWay}"
                  Header="Test"/>-->
 
-        <UserControl Content="{Binding PanelsView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        <ScrollViewer
                      RelativePanel.Below="AppTitleBar"
                      RelativePanel.RightOf="fileList"
                      RelativePanel.AlignBottomWithPanel="True"
                      RelativePanel.AlignRightWithPanel="True"
-                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                     ScrollViewer.HorizontalScrollMode="Enabled"                  
-                     ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                     ScrollViewer.VerticalScrollMode="Disabled"/>
+                     HorizontalScrollBarVisibility="Auto"
+                     HorizontalScrollMode="Enabled"                  
+                     VerticalScrollBarVisibility="Auto" 
+                     VerticalScrollMode="Enabled">
+        
+            <UserControl Content="{Binding PanelsView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            
+        </ScrollViewer>
 
     </RelativePanel>
 </Page>

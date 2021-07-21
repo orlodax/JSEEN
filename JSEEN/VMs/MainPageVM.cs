@@ -13,7 +13,7 @@ namespace JSEEN.VMs
 {
     public class MainPageVM : Observable
     {
-        #region Props and fields
+        #region Props, fields, cmds
         private ObservableCollection<StorageFile> files = new ObservableCollection<StorageFile>();
         private StorageFile selectedFile;
         private StorageFolder workspace = null;
@@ -21,18 +21,15 @@ namespace JSEEN.VMs
         private StackPanel panelsView;
         private ObservableCollection<SingleLayer> panels = new ObservableCollection<SingleLayer>();
 
-
         public ObservableCollection<StorageFile> Files { get => files; set => SetValue(ref files, value); }
         public StorageFile SelectedFile { get => selectedFile; set { SetValue(ref selectedFile, value); SelectedFileChanged(); } }
         public StorageFolder Workspace { get => workspace; set => SetValue(ref workspace, value); }
         public JObject CurrentJObject { get => currentJObject; set => SetValue(ref currentJObject, value); }
-
+        
         // binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by following list named Panels
         public StackPanel PanelsView { get => panelsView; set => SetValue(ref panelsView, value); }
         // list of grid/stackpanel holding a single layer's controls
         public ObservableCollection<SingleLayer> Panels { get => panels; set => SetValue(ref panels, value); }
-
-
 
         public ICommand ChooseFolder { get; private set; }
 
@@ -61,7 +58,7 @@ namespace JSEEN.VMs
         }
         #endregion
 
-        #region "Events"
+        #region I/O
         // recursively opens all jsons under main folder selected as workspace
         private async void LoadFiles(StorageFolder folder)
         {
@@ -96,7 +93,9 @@ namespace JSEEN.VMs
             //    }
             //}
         }
+        #endregion
 
+        #region "Events"
         private async void SelectedFileChanged()
         {
             if (SelectedFile != null)
@@ -113,11 +112,9 @@ namespace JSEEN.VMs
                     };
                     Panels.Clear();
                     Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentJObject.Children(), Panels) });
-                    //RefreshPanels();
                 }
             }
         }
-
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RefreshPanels();
@@ -134,15 +131,6 @@ namespace JSEEN.VMs
             foreach (SingleLayer p in Panels)
                 PanelsView.Children.Add(p);
         }
-        //private void SelectedPanelChanged()
-        //{
-        //    if (SelectedPanel != null)
-        //    {
-        //        var stack = new Stack<LayerPanel>(Panels);
-        //        stack.Pop();
-        //        Panels = new ObservableCollection<LayerPanel>(stack);
-        //    }
-        //}
         #endregion
 
         #region Command methods
