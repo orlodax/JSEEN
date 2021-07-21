@@ -1,43 +1,46 @@
 ﻿using JSEEN.UI;
 using JSEEN.VMs;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using System.Linq;
 
 namespace JSEEN.Helpers
 {
     public static class ControlsHelper
     {
-        internal static List<FrameworkElement> GetLayerControls(IEnumerable<JToken> propList, ObservableCollection<SingleLayer> panels)
+        internal static List<FrameworkElement> GetLayerControls(IEnumerable<JToken> propList, ObservableCollection<SingleLayer> panels, string propertyName = null)
         {
             List<FrameworkElement> controls = new List<FrameworkElement>();
 
             foreach (JToken prop in propList)
-                controls.AddRange(GetNestedLayerControls(prop, panels));
+                controls.AddRange(GetNestedLayerControls(prop, panels, propertyName));
 
             return controls;
         }
 
-        internal static IEnumerable<FrameworkElement> GetNestedLayerControls(JToken prop, ObservableCollection<SingleLayer> panels)
+        internal static IEnumerable<FrameworkElement> GetNestedLayerControls(JToken prop, ObservableCollection<SingleLayer> panels, string propertyName = null)
         {
             List<FrameworkElement> controls = new List<FrameworkElement>();
             
-            string propertyName = prop.Path;
+            if (string.IsNullOrEmpty(propertyName))
+                propertyName = prop.Path;
+
             if (prop is JProperty)
                 propertyName = (prop as JProperty).Name;
 
-            int a = 0;
-            foreach (JToken child in prop.Children())
-                a++;
-
-            if (a > 0)
+            if (prop.Children().Count() > 0)
             {
                 foreach (JToken child in prop.Children())
+                {
+                    if (child is JProperty)
+                        propertyName = (child as JProperty).Name;
+
                     GetControls(child, controls, propertyName, panels);
+                }
             }
             else
             {
@@ -52,7 +55,7 @@ namespace JSEEN.Helpers
             switch (child.Type)
             {
                 case JTokenType.Property:
-                    controls.AddRange(GetLayerControls(child.Children(), panels));
+                    controls.AddRange(GetLayerControls(child.Children(), panels, propertyName));
                     break;
 
                 case JTokenType.Object:
