@@ -1,0 +1,115 @@
+﻿<Page
+    x:Class="JSEEN.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:JSEEN"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:classes="using:JSEEN.Classes"
+    xmlns:vm="using:JSEEN.VMs" 
+    d:DataContext="{d:DesignInstance Type=vm:MainPageVM}"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <RelativePanel>
+
+        <Grid x:Name="AppTitleBar" Background="Transparent" 
+              RelativePanel.AlignLeftWithPanel="True" 
+              RelativePanel.AlignRightWithPanel="True"
+              RelativePanel.AlignTopWithPanel="True">
+            <!-- Width of the padding columns is set in LayoutMetricsChanged handler. -->
+            <!-- Using padding columns instead of Margin ensures that the background
+                 paints the area under the caption control buttons (for transparent buttons). -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- APP ICON -->
+            <Image Source="/Assets/StoreLogo.scale-125.png" 
+                   Grid.Column="1" HorizontalAlignment="Left" 
+                   Width="20" Height="20" Margin="10,0"/>
+
+            <!-- APP TITLE -->
+            <TextBlock Text="Jseen" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14"
+                       Grid.Column="1" 
+                       Style="{StaticResource CaptionTextBlockStyle}" 
+                       Margin="44,0,10,0"/>
+
+            <!-- CURSOR -->
+            <TextBlock x:Name="jPath"
+                   Grid.Column="2"
+                   Text="{Binding JPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <!-- EXTRAS -->
+            <Grid Grid.Column="3" Padding="0,0,100,0">
+                <!-- OTHER INFO-->
+                <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Rectangle Fill="Red" Width="30" Height="30"/>
+                </StackPanel>
+                <StackPanel Visibility="{Binding IsOnline, UpdateSourceTrigger=PropertyChanged}" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Rectangle Fill="Green" Width="30" Height="30"/>
+                </StackPanel>-->
+            </Grid>
+
+        </Grid>
+
+
+
+        <ListView x:Name="fileList" Background="{ThemeResource SystemControlAcrylicElementBrush}"
+                  Width="200"
+                  ScrollViewer.IsHorizontalRailEnabled="True"
+                  RelativePanel.Below="AppTitleBar"
+                  RelativePanel.AlignLeftWithPanel="True"
+                  RelativePanel.AlignBottomWithPanel="True"
+                  ItemsSource="{Binding Files, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  SelectedItem="{Binding SelectedFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.HeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Workspace.DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Margin="10" FontWeight="Bold"/>
+                </DataTemplate>
+            </ListView.HeaderTemplate>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding DisplayName}"/>
+                        <TextBlock Text="{Binding Path}" 
+                                   Margin="15,0" 
+                                   HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Button Command="{Binding ChooseFolder}"
+                Background="Transparent"
+                ToolTipService.ToolTip="Open folder..."
+                RelativePanel.AlignTopWith="fileList"
+                RelativePanel.AlignRightWith="fileList"
+                Margin="0,4">
+            <Button.Content>
+                <SymbolIcon Symbol="NewFolder"/>
+            </Button.Content>
+        </Button>
+
+        <!--<TextBox RelativePanel.Below="AppTitleBar"
+                 RelativePanel.AlignRightWithPanel="True"
+                 Text="{Binding CurrentJObject.First, Converter={StaticResource JsonValueConverter}, Mode=TwoWay}"
+                 Header="Test"/>-->
+
+        <UserControl Content="{Binding PanelsView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     RelativePanel.Below="AppTitleBar"
+                     RelativePanel.RightOf="fileList"
+                     RelativePanel.AlignBottomWithPanel="True"
+                     RelativePanel.AlignRightWithPanel="True"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollMode="Enabled"                  
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                     ScrollViewer.VerticalScrollMode="Disabled"/>
+
+    </RelativePanel>
+</Page>
