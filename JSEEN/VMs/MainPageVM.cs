@@ -3,6 +3,7 @@ using JSEEN.UI;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -20,12 +21,14 @@ namespace JSEEN.VMs
         private static JObject currentJObject;
         private StackPanel panelsView;
         private ObservableCollection<SingleLayer> panels = new ObservableCollection<SingleLayer>();
+        private string jPath;
 
         public ObservableCollection<StorageFile> Files { get => files; set => SetValue(ref files, value); }
         public StorageFile SelectedFile { get => selectedFile; set { SetValue(ref selectedFile, value); SelectedFileChanged(); } }
         public StorageFolder Workspace { get => workspace; set => SetValue(ref workspace, value); }
         public JObject CurrentJObject { get => currentJObject; set => SetValue(ref currentJObject, value); }
-        
+        public string JPath { get => jPath; set => SetValue(ref jPath, value); }
+
         // binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by following list named Panels
         public StackPanel PanelsView { get => panelsView; set => SetValue(ref panelsView, value); }
         // list of grid/stackpanel holding a single layer's controls
@@ -111,13 +114,14 @@ namespace JSEEN.VMs
                         Orientation = Orientation.Horizontal
                     };
                     Panels.Clear();
-                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentJObject.Children(), Panels) });
+                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentJObject.Root, Panels) });
                 }
             }
         }
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RefreshPanels();
+            CheckForNullAndUpdateJPath();
         }
         private void RefreshPanels()
         {
@@ -131,11 +135,25 @@ namespace JSEEN.VMs
             foreach (SingleLayer p in Panels)
                 PanelsView.Children.Add(p);
         }
+        private void CheckForNullAndUpdateJPath()
+        {
+            if (Panels.Any())
+            {
+                var lastPanel = Panels.Last();
+                var lastLayerVM = lastPanel.DataContext as SingleLayerVM;
+                if (!lastLayerVM.Panel.Children.Any())
+                    lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
+
+                JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
+            }
+        }
         #endregion
 
         #region Command methods
         private async void Exec_ChooseFolder(object parameter)
         {
+            Files.Clear();
+
             // if we are changing workspace, clear access list
             if (Workspace != null)
                 StorageApplicationPermissions.FutureAccessList.Clear();

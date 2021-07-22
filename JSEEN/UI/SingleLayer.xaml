@@ -8,7 +8,6 @@
     mc:Ignorable="d"
     d:DesignHeight="500"
     Width="200"
-    Margin="10"
     HorizontalAlignment="Left"
     ScrollViewer.IsVerticalRailEnabled="True"
     ScrollViewer.VerticalScrollMode="Enabled"

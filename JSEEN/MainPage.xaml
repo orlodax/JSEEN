@@ -23,6 +23,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="111"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
@@ -39,13 +40,28 @@
                        Style="{StaticResource CaptionTextBlockStyle}" 
                        Margin="44,0,10,0"/>
 
+            
+            
             <!-- CURSOR -->
-            <TextBlock x:Name="jPath"
-                   Grid.Column="2"
-                   Text="{Binding JPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
+            <TextBlock  Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Text="Path:"
+                        Margin="5,0"
+                        FontStyle="Italic"
+                        FontSize="11"
+                        Foreground="{ThemeResource SystemAccentColor}"/>
+            <StackPanel Grid.Column="3"
+                        VerticalAlignment="Stretch"
+                        Background="{ThemeResource SystemControlAcrylicElementBrush}">
+                <TextBlock  x:Name="jPath"
+                            Margin="5,7"
+                            Foreground="{ThemeResource SystemAccentColorLight1}"
+                            FontStyle="Italic"
+                            Text="{Binding JPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
             <!-- EXTRAS -->
-            <Grid Grid.Column="3" Padding="0,0,100,0">
+            <Grid Grid.Column="4" Padding="0,0,100,0">
                 <!-- OTHER INFO-->
                 <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Rectangle Fill="Red" Width="30" Height="30"/>

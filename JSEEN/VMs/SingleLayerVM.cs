@@ -1,23 +1,27 @@
-﻿using JSEEN.Classes;
-using JSEEN.Helpers;
+﻿using JSEEN.Helpers;
 using JSEEN.UI;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace JSEEN.VMs
 {
-    public class SingleLayerVM : Observable
+    public class SingleLayerVM
     {
-        private StackPanel panel = new StackPanel() { HorizontalAlignment = HorizontalAlignment.Left };
-
-        public StackPanel Panel { get => panel; set => SetValue(ref panel, value); }
-
-        public SingleLayerVM(IEnumerable<JToken> propList, ObservableCollection<SingleLayer> panels)
+        public StackPanel Panel { get; private set; } = new StackPanel()
         {
-            foreach (FrameworkElement control in ControlsHelper.GetLayerControls(propList, panels))
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(10)
+        };
+
+        public JToken JToken { get; private set; }
+
+        public SingleLayerVM(JToken property, ObservableCollection<SingleLayer> panels)
+        {
+            JToken = property;
+
+            foreach (FrameworkElement control in ControlsHelper.GetLayerControls(property, panels))
                 Panel.Children.Add(control);
         }
     }

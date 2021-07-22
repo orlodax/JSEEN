@@ -32,8 +32,9 @@
                    Text="{Binding Name}"/>
 
         <Button x:Name="button"
-                Width="200"
+                Width="180"
                 Height="50"
+                Background="{ThemeResource BackButtonBackgroundThemeBrush}"
                 Command="{Binding ButtonClick}"/>
 
     </RelativePanel>
