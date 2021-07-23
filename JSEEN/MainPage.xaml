@@ -102,6 +102,7 @@
         </ListView>
 
         <Button Command="{Binding ChooseFolder}"
+                x:Name="openButton"
                 Background="Transparent"
                 ToolTipService.ToolTip="Open folder..."
                 RelativePanel.AlignTopWith="fileList"
@@ -109,6 +110,16 @@
                 Margin="0,4">
             <Button.Content>
                 <SymbolIcon Symbol="NewFolder"/>
+            </Button.Content>
+        </Button>
+        <Button Command="{Binding SaveFile}"
+                Background="Transparent"
+                ToolTipService.ToolTip="Open folder..."
+                RelativePanel.AlignTopWith="fileList"
+                RelativePanel.LeftOf="openButton"
+                Margin="0,4">
+            <Button.Content>
+                <SymbolIcon Symbol="Save"/>
             </Button.Content>
         </Button>
 

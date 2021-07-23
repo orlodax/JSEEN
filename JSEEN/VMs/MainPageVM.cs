@@ -3,7 +3,9 @@ using JSEEN.UI;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -14,28 +16,32 @@ namespace JSEEN.VMs
 {
     public class MainPageVM : Observable
     {
-        #region Props, fields, cmds
-        private ObservableCollection<StorageFile> files = new ObservableCollection<StorageFile>();
-        private StorageFile selectedFile;
+        #region Fields
         private StorageFolder workspace = null;
-        private static JObject currentJObject;
-        private StackPanel panelsView;
-        private ObservableCollection<SingleLayer> panels = new ObservableCollection<SingleLayer>();
+        private JObject currentJObject;
+        #endregion
+
+        #region Bindings and UI
+        public ObservableCollection<StorageFile> Files { get; private set; } = new ObservableCollection<StorageFile>();
+
         private string jPath;
+        public string JPath { get => jPath; private set => SetValue(ref jPath, value); }
 
-        public ObservableCollection<StorageFile> Files { get => files; set => SetValue(ref files, value); }
-        public StorageFile SelectedFile { get => selectedFile; set { SetValue(ref selectedFile, value); SelectedFileChanged(); } }
-        public StorageFolder Workspace { get => workspace; set => SetValue(ref workspace, value); }
-        public JObject CurrentJObject { get => currentJObject; set => SetValue(ref currentJObject, value); }
-        public string JPath { get => jPath; set => SetValue(ref jPath, value); }
+        private StorageFile selectedFile;
+        public StorageFile SelectedFile { get => selectedFile; set { selectedFile = value; SelectedFileChanged(); } }
 
-        // binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by following list named Panels
-        public StackPanel PanelsView { get => panelsView; set => SetValue(ref panelsView, value); }
+        // binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by SingleLayer observable collection
+        private StackPanel panelsView;
+        public StackPanel PanelsView { get => panelsView; private set => SetValue(ref panelsView, value); }
+        #endregion
+
         // list of grid/stackpanel holding a single layer's controls
-        public ObservableCollection<SingleLayer> Panels { get => panels; set => SetValue(ref panels, value); }
+        public ObservableCollection<SingleLayer> Panels { get; set; } = new ObservableCollection<SingleLayer>();
 
+        #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
-
+        public ICommand SaveFile { get; private set; }
+        
         #endregion
 
         #region CTOR
@@ -44,6 +50,7 @@ namespace JSEEN.VMs
             //to reset the folder in debug
             //ApplicationData.Current.LocalSettings.Values["workSpace"] = null;
             ChooseFolder = new RelayCommand(Exec_ChooseFolder);
+            SaveFile = new RelayCommand(Exec_SaveFile);
 
             Panels.CollectionChanged += Panels_CollectionChanged;
 
@@ -52,49 +59,12 @@ namespace JSEEN.VMs
         private async void Init()
         {
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem("workSpace"))
-                Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
+                workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
 
-            if (Workspace != null)
-                LoadFiles(Workspace);
+            if (workspace != null)
+                LoadFiles(workspace);
             else
                 Exec_ChooseFolder(null);
-        }
-        #endregion
-
-        #region I/O
-        // recursively opens all jsons under main folder selected as workspace
-        private async void LoadFiles(StorageFolder folder)
-        {
-            foreach (var item in await folder.GetItemsAsync())
-            {
-                if (item is StorageFile file)
-                {
-                    if (file.FileType == ".json")
-                        Files.Add(file);
-                }
-                // recursive
-                if (item is StorageFolder subFolder)
-                    LoadFiles(subFolder);
-            }
-        }
-        private void SaveFile()
-        {
-            //if (SelectedNode != null && SelectedChapter != null)
-            //{
-            //    if (LocalSettings.Values.TryGetValue("workSpace", out object path))
-            //    {
-            //        var workSpace = await StorageFolder.GetFolderFromPathAsync(path.ToString());
-            //        if (workSpace != null)
-            //        {
-            //            if (ChapterFiles.TryGetValue(SelectedChapter, out StorageFile file))
-            //            {
-            //                string uglyString = Newtonsoft.Json.JsonConvert.SerializeObject(SelectedChapter);
-            //                string okString = JToken.Parse(uglyString).ToString();
-            //                await FileIO.WriteTextAsync(file, okString);
-            //            }
-            //        }
-            //    }
-            //}
         }
         #endregion
 
@@ -107,21 +77,30 @@ namespace JSEEN.VMs
 
                 if (!string.IsNullOrEmpty(json))
                 {
-                    CurrentJObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(json);
+                    currentJObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(json);
+                    currentJObject.PropertyChanging += CurrentJObject_PropertyChanging;
+
                     PanelsView = new StackPanel()
                     {
                         HorizontalAlignment = HorizontalAlignment.Left,
                         Orientation = Orientation.Horizontal
                     };
                     Panels.Clear();
-                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentJObject.Root, Panels) });
+                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(currentJObject.Root, Panels) });
                 }
             }
         }
+
+        private void CurrentJObject_PropertyChanging(object sender, System.ComponentModel.PropertyChangingEventArgs e)
+        {
+            Exec_SaveFile(sender);
+        }
+
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RefreshPanels();
             CheckForNullAndUpdateJPath();
+            //Exec_SaveFile(sender);
         }
         private void RefreshPanels()
         {
@@ -139,7 +118,7 @@ namespace JSEEN.VMs
         {
             if (Panels.Any())
             {
-                var lastPanel = Panels.Last();
+                SingleLayer lastPanel = Panels.Last();
                 var lastLayerVM = lastPanel.DataContext as SingleLayerVM;
                 if (!lastLayerVM.Panel.Children.Any())
                     lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
@@ -155,19 +134,43 @@ namespace JSEEN.VMs
             Files.Clear();
 
             // if we are changing workspace, clear access list
-            if (Workspace != null)
+            if (workspace != null)
                 StorageApplicationPermissions.FutureAccessList.Clear();
 
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
 
-            Workspace = await folderPicker.PickSingleFolderAsync();
-            if (Workspace != null)
+            workspace = await folderPicker.PickSingleFolderAsync();
+            if (workspace != null)
             {
                 // Application now has read/write access to all contents in the picked folder
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", Workspace);
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", workspace);
 
-                LoadFiles(Workspace);
+                LoadFiles(workspace);
+            }
+        }
+        // recursively opens all jsons under main folder selected as workspace
+        private async void LoadFiles(StorageFolder folder)
+        {
+            foreach (var item in await folder.GetItemsAsync())
+            {
+                if (item is StorageFile file)
+                {
+                    if (file.FileType == ".json")
+                        Files.Add(file);
+                }
+                
+                if (item is StorageFolder subFolder)
+                    LoadFiles(subFolder);
+            }
+        }
+        private async void Exec_SaveFile(object parameter)
+        {
+            if (SelectedFile != null)
+            {
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(currentJObject);
+
+                await FileIO.WriteTextAsync(SelectedFile, json);
             }
         }
         #endregion
