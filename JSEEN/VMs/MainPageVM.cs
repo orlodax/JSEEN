@@ -1,11 +1,11 @@
 ﻿using JSEEN.Classes;
 using JSEEN.UI;
+using JSEEN.WorkspaceTree;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -22,6 +22,7 @@ namespace JSEEN.VMs
         #endregion
 
         #region Bindings and UI
+        public List<TreeItem> WorkspaceTree { get; set; }
         public ObservableCollection<StorageFile> Files { get; private set; } = new ObservableCollection<StorageFile>();
 
         private string jPath;
@@ -41,7 +42,7 @@ namespace JSEEN.VMs
         #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
         public ICommand SaveFile { get; private set; }
-        
+        public ICommand TreeItemSelected { get; private set; }
         #endregion
 
         #region CTOR

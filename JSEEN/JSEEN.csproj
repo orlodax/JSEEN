@@ -138,6 +138,7 @@
     <Compile Include="VMs\MainPageVM.cs" />
     <Compile Include="VMs\NestingButtonVM.cs" />
     <Compile Include="VMs\SingleLayerVM.cs" />
+    <Compile Include="WorkspaceTree\TreeItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -222,6 +223,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.6.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
+      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>

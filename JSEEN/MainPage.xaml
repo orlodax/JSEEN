@@ -7,6 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:classes="using:JSEEN.Classes"
     xmlns:vm="using:JSEEN.VMs" 
+    xmlns:i="using:Microsoft.Xaml.Interactivity" 
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     d:DataContext="{d:DesignInstance Type=vm:MainPageVM}"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -73,12 +75,39 @@
 
         </Grid>
 
-
+        <TreeView x:Name="treeView"
+                  Background="{ThemeResource SystemControlAcrylicElementBrush}"
+                  BorderBrush="{ThemeResource SystemAccentColor}"
+                  BorderThickness="2"
+                  Width="200"
+                  ScrollViewer.IsHorizontalRailEnabled="True"
+                  RelativePanel.Below="AppTitleBar"
+                  RelativePanel.AlignLeftWithPanel="True"
+                  RelativePanel.AlignBottomWithPanel="True"
+                  SelectionMode="Single"
+                  CanReorderItems="False"
+                  ItemsSource="{Binding WorkspaceTree}">
+            <TreeView.ItemTemplate>
+                <DataTemplate>
+                    <TreeViewItem ItemsSource="{Binding Children}" Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Width="10" Symbol="{Binding Glyph}" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Name}" FontFamily="Malgun" FontWeight="SemiBold" FontSize="10"/>
+                        </StackPanel>
+                    </TreeViewItem>
+                </DataTemplate>
+            </TreeView.ItemTemplate>
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemInvoked">
+                    <core:InvokeCommandAction Command="{Binding TreeItemSelected}"/>
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+        </TreeView>
 
         <ListView x:Name="fileList" Background="{ThemeResource SystemControlAcrylicElementBrush}"
                   Width="200"
                   ScrollViewer.IsHorizontalRailEnabled="True"
-                  RelativePanel.Below="AppTitleBar"
+                  RelativePanel.Below="treeView"
                   RelativePanel.AlignLeftWithPanel="True"
                   RelativePanel.AlignBottomWithPanel="True"
                   ItemsSource="{Binding Files, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -105,8 +134,8 @@
                 x:Name="openButton"
                 Background="Transparent"
                 ToolTipService.ToolTip="Open folder..."
-                RelativePanel.AlignTopWith="fileList"
-                RelativePanel.AlignRightWith="fileList"
+                RelativePanel.AlignTopWith="treeView"
+                RelativePanel.AlignRightWith="treeView"
                 Margin="0,4">
             <Button.Content>
                 <SymbolIcon Symbol="NewFolder"/>
@@ -115,7 +144,7 @@
         <Button Command="{Binding SaveFile}"
                 Background="Transparent"
                 ToolTipService.ToolTip="Open folder..."
-                RelativePanel.AlignTopWith="fileList"
+                RelativePanel.AlignTopWith="treeView"
                 RelativePanel.LeftOf="openButton"
                 Margin="0,4">
             <Button.Content>
