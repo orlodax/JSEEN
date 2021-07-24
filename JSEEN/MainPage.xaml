@@ -132,6 +132,7 @@
         </TreeView>
 
         <ScrollViewer x:Name="mainContainer"
+                       
                      RelativePanel.Below="AppTitleBar"
                      RelativePanel.RightOf="treeView"
                      RelativePanel.AlignBottomWithPanel="True"
@@ -141,7 +142,9 @@
                      VerticalScrollBarVisibility="Auto" 
                      VerticalScrollMode="Enabled">
         
-            <UserControl Content="{Binding PanelsView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <UserControl 
+                x:Name="displayPane"
+                Content="{Binding PanelsView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             
         </ScrollViewer>
 

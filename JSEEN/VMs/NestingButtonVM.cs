@@ -58,7 +58,7 @@ namespace JSEEN.VMs
         private void Exec_ButtonClick(object parameter)
         {
             // rebuild panel collection up to where the button was clicked
-            if (index > 0)
+            if (index >= 0)
             {
                 var newPanels = new List<SingleLayer>();
                 for (int i = 0; i <= index; i++)
