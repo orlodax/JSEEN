@@ -17,11 +17,11 @@ namespace JSEEN.VMs
 
         public JToken JToken { get; private set; }
 
-        public SingleLayerVM(JToken property, ObservableCollection<SingleLayer> panels)
+        public SingleLayerVM(JToken property)
         {
             JToken = property;
 
-            foreach (FrameworkElement control in ControlsHelper.GetLayerControls(property, panels))
+            foreach (FrameworkElement control in ControlsHelper.GetLayerControls(property))
                 Panel.Children.Add(control);
         }
     }

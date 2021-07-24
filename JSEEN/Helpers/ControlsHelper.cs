@@ -13,14 +13,14 @@ namespace JSEEN.Helpers
     public static class ControlsHelper
     {
         #region Json parser
-        internal static List<FrameworkElement> GetLayerControls(JToken prop, ObservableCollection<SingleLayer> panels, string propertyName = null)
+        internal static List<FrameworkElement> GetLayerControls(JToken prop, string propertyName = null)
         {
             var controls = new List<FrameworkElement>();
 
             foreach (JToken child in prop)
             {
                 if (child.Type is JTokenType.Object || child.Type is JTokenType.Array)
-                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child, panels) });
+                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child) });
                 else
                 {
                     if (string.IsNullOrEmpty(propertyName))
@@ -36,28 +36,28 @@ namespace JSEEN.Helpers
                             if (niece is JProperty)
                                 propertyName = (niece as JProperty).Name;
 
-                            GetControls(niece, controls, propertyName, panels);
+                            GetControls(niece, controls, propertyName);
                         }
                     }
                     else
                     {
-                        GetControls(child, controls, propertyName, panels);
+                        GetControls(child, controls, propertyName);
                     }
                 }
             }
             return controls;
         }
-        private static void GetControls(JToken child, List<FrameworkElement> controls, string propertyName, ObservableCollection<SingleLayer> panels)
+        private static void GetControls(JToken child, List<FrameworkElement> controls, string propertyName)
         {
             switch (child.Type)
             {
                 case JTokenType.Property:
-                    controls.AddRange(GetLayerControls(child, panels, propertyName));
+                    controls.AddRange(GetLayerControls(child, propertyName));
                     break;
 
                 case JTokenType.Object:
                 case JTokenType.Array:
-                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child, panels) });
+                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child) });
                     break;
 
                 case JTokenType.Boolean:

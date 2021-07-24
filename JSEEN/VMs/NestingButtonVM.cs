@@ -12,7 +12,7 @@ namespace JSEEN.VMs
     {
         private readonly int index;
         private readonly JToken property;
-        private ObservableCollection<SingleLayer> panels;
+        //private ObservableCollection<SingleLayer> panels;
 
         public string CharIcon { get; private set; }
         public string Type { get; private set; }
@@ -20,11 +20,10 @@ namespace JSEEN.VMs
 
         public ICommand ButtonClick { get; private set; }
 
-        public NestingButtonVM(JToken property, ObservableCollection<SingleLayer> panels)
+        public NestingButtonVM(JToken property)
         {
             this.property = property;
-            this.panels = panels;
-            index = panels.Count;
+            index = MainPageVM.Panels.Count;
 
             ButtonClick = new RelayCommand(Exec_ButtonClick);
 
@@ -63,14 +62,14 @@ namespace JSEEN.VMs
             {
                 var newPanels = new List<SingleLayer>();
                 for (int i = 0; i <= index; i++)
-                    newPanels.Add(panels[i]);
+                    newPanels.Add(MainPageVM.Panels[i]);
 
-                panels.Clear();
+                MainPageVM.Panels.Clear();
                 foreach (SingleLayer panel in newPanels)
-                    panels.Add(panel);
+                    MainPageVM.Panels.Add(panel);
             }
 
-            panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(property, panels) });
+            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(property) });
         }
 
         private string FindArrayName(JToken property)

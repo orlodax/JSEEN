@@ -75,13 +75,40 @@
 
         </Grid>
 
+        <RelativePanel x:Name="buttons" RelativePanel.Below="AppTitleBar" Width="200" >
+            <Button Command="{Binding ChooseFolder}"
+                    x:Name="openButton"
+                    Background="Transparent"
+                    ToolTipService.ToolTip="Open folder..."
+                    RelativePanel.AlignRightWithPanel="True">
+                <Button.Content>
+                    <SymbolIcon Symbol="NewFolder"/>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding SaveFiles}"
+                    Background="Transparent"
+                    ToolTipService.ToolTip="Open folder..."
+                    RelativePanel.LeftOf="openButton">
+                <Button.Content>
+                    <SymbolIcon Symbol="Save"/>
+                </Button.Content>
+            </Button>
+        </RelativePanel>
+
+        <TextBlock x:Name="treeviewHeader"
+                   Margin="35,10"
+                   FontStyle="Italic"
+                   Foreground="{ThemeResource SystemAccentColorLight1}"
+                   RelativePanel.Below="buttons"
+                   Text="{Binding Workspace.DisplayName}"/>
+
         <TreeView x:Name="treeView"
                   Background="{ThemeResource SystemControlAcrylicElementBrush}"
                   BorderBrush="{ThemeResource SystemAccentColor}"
                   BorderThickness="2"
                   Width="200"
                   ScrollViewer.IsHorizontalRailEnabled="True"
-                  RelativePanel.Below="AppTitleBar"
+                  RelativePanel.Below="treeviewHeader"
                   RelativePanel.AlignLeftWithPanel="True"
                   RelativePanel.AlignBottomWithPanel="True"
                   SelectionMode="Single"
@@ -91,7 +118,7 @@
                 <DataTemplate>
                     <TreeViewItem ItemsSource="{Binding Children}" Background="Transparent">
                         <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Width="10" Symbol="{Binding Glyph}" Margin="0,0,10,0"/>
+                            <SymbolIcon Width="20" Symbol="{Binding Glyph}" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding Name}" FontFamily="Malgun" FontWeight="SemiBold" FontSize="10"/>
                         </StackPanel>
                     </TreeViewItem>
@@ -104,62 +131,9 @@
             </i:Interaction.Behaviors>
         </TreeView>
 
-        <ListView x:Name="fileList" Background="{ThemeResource SystemControlAcrylicElementBrush}"
-                  Width="200"
-                  ScrollViewer.IsHorizontalRailEnabled="True"
-                  RelativePanel.Below="treeView"
-                  RelativePanel.AlignLeftWithPanel="True"
-                  RelativePanel.AlignBottomWithPanel="True"
-                  ItemsSource="{Binding Files, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                  SelectedItem="{Binding SelectedFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Workspace.DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Margin="10" FontWeight="Bold"/>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding DisplayName}"/>
-                        <TextBlock Text="{Binding Path}" 
-                                   Margin="15,0" 
-                                   HorizontalAlignment="Right"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-
-        <Button Command="{Binding ChooseFolder}"
-                x:Name="openButton"
-                Background="Transparent"
-                ToolTipService.ToolTip="Open folder..."
-                RelativePanel.AlignTopWith="treeView"
-                RelativePanel.AlignRightWith="treeView"
-                Margin="0,4">
-            <Button.Content>
-                <SymbolIcon Symbol="NewFolder"/>
-            </Button.Content>
-        </Button>
-        <Button Command="{Binding SaveFile}"
-                Background="Transparent"
-                ToolTipService.ToolTip="Open folder..."
-                RelativePanel.AlignTopWith="treeView"
-                RelativePanel.LeftOf="openButton"
-                Margin="0,4">
-            <Button.Content>
-                <SymbolIcon Symbol="Save"/>
-            </Button.Content>
-        </Button>
-
-        <!--<TextBox RelativePanel.Below="AppTitleBar"
-                 RelativePanel.AlignRightWithPanel="True"
-                 Text="{Binding CurrentJObject.First, Converter={StaticResource JsonValueConverter}, Mode=TwoWay}"
-                 Header="Test"/>-->
-
-        <ScrollViewer
+        <ScrollViewer x:Name="mainContainer"
                      RelativePanel.Below="AppTitleBar"
-                     RelativePanel.RightOf="fileList"
+                     RelativePanel.RightOf="treeView"
                      RelativePanel.AlignBottomWithPanel="True"
                      RelativePanel.AlignRightWithPanel="True"
                      HorizontalScrollBarVisibility="Auto"

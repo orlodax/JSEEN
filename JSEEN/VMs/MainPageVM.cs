@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -16,33 +17,47 @@ namespace JSEEN.VMs
 {
     public class MainPageVM : Observable
     {
-        #region Fields
+        #region Props and fields
+        /// <summary>
+        /// Selected Item from the treeview, contains the string json and reference to its JObject
+        /// </summary>
+        public TreeItem CurrentItem { get; set; }
+
+        /// <summary>
+        /// The root folder - all jsons and subfolders with jsons will be loaded in the treeview (file explorer)
+        /// </summary>
         private StorageFolder workspace = null;
-        private JObject currentJObject;
-        #endregion
+        public StorageFolder Workspace { get => workspace; set => SetValue(ref workspace, value); }
 
-        #region Bindings and UI
-        public List<TreeItem> WorkspaceTree { get; set; }
-        public ObservableCollection<StorageFile> Files { get; private set; } = new ObservableCollection<StorageFile>();
-
+        /// <summary>
+        /// List feeding the treeview
+        /// </summary>
+        private List<TreeItem> workspaceTree = new List<TreeItem>();
+        public List<TreeItem> WorkspaceTree { get => workspaceTree; set => SetValue(ref workspaceTree, value); }
+        
+        /// <summary>
+        /// Displays path of currently selected JToken
+        /// </summary>
         private string jPath;
         public string JPath { get => jPath; private set => SetValue(ref jPath, value); }
 
-        private StorageFile selectedFile;
-        public StorageFile SelectedFile { get => selectedFile; set { selectedFile = value; SelectedFileChanged(); } }
-
-        // binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by SingleLayer observable collection
+        /// <summary>
+        /// Binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by SingleLayer observable collection
+        /// </summary>
         private StackPanel panelsView;
         public StackPanel PanelsView { get => panelsView; private set => SetValue(ref panelsView, value); }
-        #endregion
 
-        // list of grid/stackpanel holding a single layer's controls
-        public ObservableCollection<SingleLayer> Panels { get; set; } = new ObservableCollection<SingleLayer>();
+        /// <summary>
+        /// List of grid/stackpanel holding a single layer's controls
+        /// </summary>
+        public static ObservableCollection<SingleLayer> Panels { get; set; } = new ObservableCollection<SingleLayer>();
+        #endregion
 
         #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
-        public ICommand SaveFile { get; private set; }
+        public ICommand SaveFiles { get; private set; }
         public ICommand TreeItemSelected { get; private set; }
+        
         #endregion
 
         #region CTOR
@@ -51,7 +66,8 @@ namespace JSEEN.VMs
             //to reset the folder in debug
             //ApplicationData.Current.LocalSettings.Values["workSpace"] = null;
             ChooseFolder = new RelayCommand(Exec_ChooseFolder);
-            SaveFile = new RelayCommand(Exec_SaveFile);
+            SaveFiles = new RelayCommand(Exec_SaveFiles);
+            TreeItemSelected = new RelayCommand(Exec_TreeItemSelected);
 
             Panels.CollectionChanged += Panels_CollectionChanged;
 
@@ -60,48 +76,20 @@ namespace JSEEN.VMs
         private async void Init()
         {
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem("workSpace"))
-                workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
+                Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
 
-            if (workspace != null)
-                LoadFiles(workspace);
+            if (Workspace != null)
+                WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
             else
                 Exec_ChooseFolder(null);
         }
         #endregion
 
         #region "Events"
-        private async void SelectedFileChanged()
-        {
-            if (SelectedFile != null)
-            {
-                string json = await FileIO.ReadTextAsync(SelectedFile);
-
-                if (!string.IsNullOrEmpty(json))
-                {
-                    currentJObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(json);
-                    currentJObject.PropertyChanging += CurrentJObject_PropertyChanging;
-
-                    PanelsView = new StackPanel()
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        Orientation = Orientation.Horizontal
-                    };
-                    Panels.Clear();
-                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(currentJObject.Root, Panels) });
-                }
-            }
-        }
-
-        private void CurrentJObject_PropertyChanging(object sender, System.ComponentModel.PropertyChangingEventArgs e)
-        {
-            Exec_SaveFile(sender);
-        }
-
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RefreshPanels();
             CheckForNullAndUpdateJPath();
-            //Exec_SaveFile(sender);
         }
         private void RefreshPanels()
         {
@@ -132,46 +120,108 @@ namespace JSEEN.VMs
         #region Command methods
         private async void Exec_ChooseFolder(object parameter)
         {
-            Files.Clear();
-
-            // if we are changing workspace, clear access list
-            if (workspace != null)
+            // if we are changing Workspace, clear access list
+            if (Workspace != null)
                 StorageApplicationPermissions.FutureAccessList.Clear();
 
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
 
-            workspace = await folderPicker.PickSingleFolderAsync();
-            if (workspace != null)
+            Workspace = await folderPicker.PickSingleFolderAsync();
+            if (Workspace != null)
             {
                 // Application now has read/write access to all contents in the picked folder
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", workspace);
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", Workspace);
 
-                LoadFiles(workspace);
+                WorkspaceTree.Clear();
+                WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
             }
         }
-        // recursively opens all jsons under main folder selected as workspace
-        private async void LoadFiles(StorageFolder folder)
+        // recursively opens all jsons under main folder selected as Workspace
+        private async Task<List<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
         {
-            foreach (var item in await folder.GetItemsAsync())
+            var treeList = new List<TreeItem>();
+
+            IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
+
+            foreach (IStorageItem item in items)
             {
-                if (item is StorageFile file)
+                if (item is StorageFile file && file.FileType == ".json")
                 {
-                    if (file.FileType == ".json")
-                        Files.Add(file);
+                    treeList.Add(new TreeItem(file)
+                    {
+                        Content = await FileIO.ReadTextAsync(file),
+                        Name = file.DisplayName
+                    });
                 }
-                
+
                 if (item is StorageFolder subFolder)
-                    LoadFiles(subFolder);
+                {
+                    treeList.Add(new TreeItem(subFolder)
+                    {
+                        Children = await PopulateWorspaceRecursively(subFolder),
+                        Name = subFolder.DisplayName
+                    });
+                }
+            }
+
+            // remove folders without jsons inside
+            treeList.RemoveAll(t => t.StorageItem is StorageFolder && !t.Children.Any());
+
+            return treeList;
+        }
+        private async void Exec_SaveFiles(object parameter)
+        {
+            foreach (TreeItem treeItem in WorkspaceTree.Where(t => t.StorageItem is StorageFile))
+            {
+                if (treeItem.JObject != null)
+                {
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(treeItem.JObject);
+                    await FileIO.WriteTextAsync(treeItem.StorageItem as StorageFile, json);
+                }
             }
         }
-        private async void Exec_SaveFile(object parameter)
+        private async void Exec_TreeItemSelected(object parameter)
         {
-            if (SelectedFile != null)
+            if (parameter != null)
             {
-                string json = Newtonsoft.Json.JsonConvert.SerializeObject(currentJObject);
+                var treeItem = (parameter as TreeViewItemInvokedEventArgs).InvokedItem as TreeItem;
 
-                await FileIO.WriteTextAsync(SelectedFile, json);
+                if (!string.IsNullOrEmpty(treeItem.Content))
+                {
+                    //save previous item and swith to the current one
+                    if (CurrentItem != null)
+                        await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject));
+                    CurrentItem = treeItem;
+
+                    if (CurrentItem.JObject == null)
+                    {
+                        try
+                        {
+                            CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(treeItem.Content);
+                        }
+                        catch (Exception e)
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "Error",
+                                CloseButtonText = "Close",
+                                DefaultButton = ContentDialogButton.Close,
+                                Content = e.Message
+                            };
+
+                            _ = await dialog.ShowAsync();
+                        }
+                    }
+
+                    PanelsView = new StackPanel()
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        Orientation = Orientation.Horizontal
+                    };
+                    Panels.Clear();
+                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
+                }
             }
         }
         #endregion
