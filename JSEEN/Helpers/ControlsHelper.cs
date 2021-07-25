@@ -101,6 +101,7 @@ namespace JSEEN.Helpers
                 DataContext = subToken,
                 Header = propertyName,
                 Width = 180,
+                Margin = new Thickness(0, 0, 0, 10),
                 TextWrapping = TextWrapping.Wrap
             };
             tb.SetBinding(TextBox.TextProperty, defaultBinding);
@@ -124,7 +125,7 @@ namespace JSEEN.Helpers
             return new TextBlock
             {
                 Text = "null",
-                HorizontalAlignment = HorizontalAlignment.Center,
+                FontSize = 14,
                 Padding= new Thickness(10),
                 FontStyle = Windows.UI.Text.FontStyle.Italic,
                 Width = 180,

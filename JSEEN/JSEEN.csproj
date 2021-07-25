@@ -121,9 +121,6 @@
     </Compile>
     <Compile Include="Classes\Observable.cs" />
     <Compile Include="Classes\RelayCommand.cs" />
-    <Compile Include="Converters\ConverterIsItemSelected.cs" />
-    <Compile Include="Converters\ExtractRelativePath.cs" />
-    <Compile Include="Converters\JsonValueConverter.cs" />
     <Compile Include="Helpers\ControlsHelper.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

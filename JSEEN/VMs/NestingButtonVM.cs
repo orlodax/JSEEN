@@ -1,7 +1,6 @@
 ﻿using JSEEN.Classes;
 using JSEEN.UI;
 using Newtonsoft.Json.Linq;
-//using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Windows.UI.Xaml;
@@ -22,9 +21,6 @@ namespace JSEEN.VMs
         public Brush Background { get => background; set => SetValue(ref background, value); }
 
         public ICommand ButtonClick { get; private set; }
-
-     //   public static EventHandler NestingButtonClicked;
-
 
         public NestingButtonVM(JToken property)
         {
@@ -78,8 +74,6 @@ namespace JSEEN.VMs
             MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(property) });
 
             Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
-
-            //NestingButtonClicked.Invoke(this, new EventArgs());
         }
 
         private string FindArrayName(JToken property)

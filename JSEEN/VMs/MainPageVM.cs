@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
@@ -111,20 +112,6 @@ namespace JSEEN.VMs
         {
             if (Panels.Any())
             {
-                foreach (SingleLayer sl in Panels)
-                {
-                    var slVM = sl.DataContext as SingleLayerVM;
-                    slVM.Background = null;
-
-                    var buttons = slVM.Controls.Where(c => c is NestingButton);
-                    foreach (var nb in buttons)
-                    {
-                        var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
-                        if (!string.IsNullOrEmpty(JPath) && JPath.Contains(nbVM.Name))
-                            nbVM.Background = null;
-                    }
-                }
-
                 SingleLayer lastPanel = Panels.Last();
                 var lastLayerVM = lastPanel.DataContext as SingleLayerVM;
                 if (!lastLayerVM.Panel.Children.Any())
@@ -133,6 +120,29 @@ namespace JSEEN.VMs
                     lastLayerVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
 
                 JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
+
+                foreach (SingleLayer sl in Panels)
+                {
+                    var slVM = sl.DataContext as SingleLayerVM;
+                    slVM.Background = null;
+
+                    IEnumerable<FrameworkElement> buttons = slVM.Controls.Where(c => c is NestingButton);
+                    foreach (FrameworkElement nb in buttons)
+                    {
+                        var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
+                        if (!string.IsNullOrEmpty(JPath))
+                        {
+                            if (JPath.Contains(nbVM.Name))
+                            {
+                                string[] pathFragments = JPath.Split(nbVM.Name);
+                                if (!pathFragments[pathFragments.GetUpperBound(0)].StartsWith("["))
+                                    nbVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+                            }
+                            else
+                                nbVM.Background = new SolidColorBrush(new Windows.UI.Color { A = 0, R = 0, G = 0, B = 0 });
+                        }
+                    }
+                }
             }
         }
         #endregion
