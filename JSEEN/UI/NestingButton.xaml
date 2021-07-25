@@ -7,10 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:vms="using:JSEEN.VMs" d:DataContext="{d:DesignInstance Type=vms:NestingButtonVM}"
     mc:Ignorable="d"
-    d:DesignHeight="50"
+    d:DesignHeight="80"
     d:DesignWidth="200">
 
-    <RelativePanel Height="50" Width="200" Margin="0,0,0,10" Background="{Binding Background}">
+    <RelativePanel Height="45"  Margin="0,0,0,10" Background="{Binding Background}">
 
         <TextBlock x:Name="icon"
                    RelativePanel.AlignLeftWithPanel="True"
@@ -30,6 +30,8 @@
                    RelativePanel.Below="label"
                    FontSize="14"
                    FontWeight="Bold"
+                   MaxWidth="170"
+                   TextTrimming="CharacterEllipsis"
                    Text="{Binding Name}"/>
 
         <Button x:Name="button"
