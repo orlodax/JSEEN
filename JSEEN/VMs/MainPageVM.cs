@@ -12,6 +12,7 @@ using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace JSEEN.VMs
 {
@@ -44,7 +45,7 @@ namespace JSEEN.VMs
         /// <summary>
         /// Binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by SingleLayer observable collection
         /// </summary>
-        private StackPanel panelsView;
+        private StackPanel panelsView = new StackPanel();
         public StackPanel PanelsView { get => panelsView; private set => SetValue(ref panelsView, value); }
 
         /// <summary>
@@ -88,8 +89,11 @@ namespace JSEEN.VMs
         #region "Events"
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            RefreshPanels();
-            CheckForNullAndUpdateJPath();
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                RefreshPanels();
+                CheckForNullAndUpdateJPath();
+            }
         }
         private void RefreshPanels()
         {
@@ -107,10 +111,26 @@ namespace JSEEN.VMs
         {
             if (Panels.Any())
             {
+                foreach (SingleLayer sl in Panels)
+                {
+                    var slVM = sl.DataContext as SingleLayerVM;
+                    slVM.Background = null;
+
+                    var buttons = slVM.Controls.Where(c => c is NestingButton);
+                    foreach (var nb in buttons)
+                    {
+                        var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
+                        if (!string.IsNullOrEmpty(JPath) && JPath.Contains(nbVM.Name))
+                            nbVM.Background = null;
+                    }
+                }
+
                 SingleLayer lastPanel = Panels.Last();
                 var lastLayerVM = lastPanel.DataContext as SingleLayerVM;
                 if (!lastLayerVM.Panel.Children.Any())
                     lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
+                else
+                    lastLayerVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
 
                 JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
             }

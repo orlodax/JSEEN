@@ -1,24 +1,30 @@
 ﻿using JSEEN.Classes;
 using JSEEN.UI;
 using Newtonsoft.Json.Linq;
+//using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace JSEEN.VMs
 {
-    public class NestingButtonVM
+    public class NestingButtonVM : Observable
     {
         private readonly int index;
         private readonly JToken property;
-        //private ObservableCollection<SingleLayer> panels;
 
         public string CharIcon { get; private set; }
         public string Type { get; private set; }
         public string Name { get; private set; }
 
+        private Brush background;
+        public Brush Background { get => background; set => SetValue(ref background, value); }
+
         public ICommand ButtonClick { get; private set; }
+
+     //   public static EventHandler NestingButtonClicked;
+
 
         public NestingButtonVM(JToken property)
         {
@@ -70,6 +76,10 @@ namespace JSEEN.VMs
             }
 
             MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(property) });
+
+            Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+
+            //NestingButtonClicked.Invoke(this, new EventArgs());
         }
 
         private string FindArrayName(JToken property)

@@ -132,7 +132,6 @@
         </TreeView>
 
         <ScrollViewer x:Name="mainContainer"
-                       
                      RelativePanel.Below="AppTitleBar"
                      RelativePanel.RightOf="treeView"
                      RelativePanel.AlignBottomWithPanel="True"

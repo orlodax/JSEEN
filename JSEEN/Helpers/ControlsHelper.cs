@@ -2,7 +2,6 @@
 using JSEEN.VMs;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -125,6 +124,8 @@ namespace JSEEN.Helpers
             return new TextBlock
             {
                 Text = "null",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Padding= new Thickness(10),
                 FontStyle = Windows.UI.Text.FontStyle.Italic,
                 Width = 180,
             };
