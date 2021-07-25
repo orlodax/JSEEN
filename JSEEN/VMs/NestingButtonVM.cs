@@ -11,20 +11,22 @@ namespace JSEEN.VMs
     public class NestingButtonVM : Observable
     {
         private readonly int index;
-        private readonly JToken property;
 
         public string CharIcon { get; private set; }
         public string Type { get; private set; }
         public string Name { get; private set; }
+        public JToken Property { get; private set; }
 
         private Brush background;
         public Brush Background { get => background; set => SetValue(ref background, value); }
 
         public ICommand ButtonClick { get; private set; }
 
+        
+
         public NestingButtonVM(JToken property)
         {
-            this.property = property;
+            this.Property = property;
             index = MainPageVM.Panels.Count;
 
             ButtonClick = new RelayCommand(Exec_ButtonClick);
@@ -71,7 +73,7 @@ namespace JSEEN.VMs
                     MainPageVM.Panels.Add(panel);
             }
 
-            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(property) });
+            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(Property) });
 
             Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
         }

@@ -92,55 +92,49 @@ namespace JSEEN.VMs
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                RefreshPanels();
-                CheckForNullAndUpdateJPath();
-            }
-        }
-        private void RefreshPanels()
-        {
-            PanelsView.Children.Clear();
-            PanelsView = new StackPanel()
-            {
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Orientation = Orientation.Horizontal
-            };
+                PanelsView.Children.Clear();
+                PanelsView = new StackPanel()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Orientation = Orientation.Horizontal
+                };
 
-            foreach (SingleLayer p in Panels)
-                PanelsView.Children.Add(p);
-        }
-        private void CheckForNullAndUpdateJPath()
-        {
-            if (Panels.Any())
-            {
-                SingleLayer lastPanel = Panels.Last();
-                var lastLayerVM = lastPanel.DataContext as SingleLayerVM;
-                if (!lastLayerVM.Panel.Children.Any())
-                    lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
-                else
-                    lastLayerVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+                var lastPanel = Panels.Last();
 
+                // update jpath
                 JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
 
+                // highlight selected elements...
+                IEnumerable<JToken> tokens = Panels.Select(p => (p.DataContext as SingleLayerVM).JToken);
                 foreach (SingleLayer sl in Panels)
                 {
+                    // use foreach to repopulate PanelsView container
+                    PanelsView.Children.Add(sl);
+
+                    // turn off selected SingleLayers
                     var slVM = sl.DataContext as SingleLayerVM;
                     slVM.Background = null;
 
+                    // using list of tokens, iterate over buttons to highlight the selected one (compare their JToken)
                     IEnumerable<FrameworkElement> buttons = slVM.Controls.Where(c => c is NestingButton);
                     foreach (FrameworkElement nb in buttons)
                     {
                         var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
-                        if (!string.IsNullOrEmpty(JPath))
-                        {
-                            if (JPath.Contains(nbVM.Name))
-                            {
-                                string[] pathFragments = JPath.Split(nbVM.Name);
-                                if (!pathFragments[pathFragments.GetUpperBound(0)].StartsWith("["))
-                                    nbVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
-                            }
-                            else
-                                nbVM.Background = new SolidColorBrush(new Windows.UI.Color { A = 0, R = 0, G = 0, B = 0 });
-                        }
+
+                        if (tokens.Contains(nbVM.Property))
+                            nbVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+                        else
+                            nbVM.Background = new SolidColorBrush(new Windows.UI.Color { A = 0, R = 0, G = 0, B = 0 });
+                    }
+
+                    // either highlight last panel or display null
+                    if (sl == lastPanel)
+                    {
+                        var lastLayerVM = sl.DataContext as SingleLayerVM;
+                        if (!lastLayerVM.Panel.Children.Any())
+                            lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
+                        else
+                            lastLayerVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
                     }
                 }
             }
