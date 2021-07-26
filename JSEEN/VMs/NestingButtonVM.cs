@@ -15,32 +15,30 @@ namespace JSEEN.VMs
         public string CharIcon { get; private set; }
         public string Type { get; private set; }
         public string Name { get; private set; }
-        public JToken Property { get; private set; }
+        public JToken JToken { get; private set; }
 
         private Brush background;
         public Brush Background { get => background; set => SetValue(ref background, value); }
 
         public ICommand ButtonClick { get; private set; }
 
-        
-
-        public NestingButtonVM(JToken property)
+        public NestingButtonVM(JToken jToken)
         {
-            this.Property = property;
+            JToken = jToken;
             index = MainPageVM.Panels.Count;
 
             ButtonClick = new RelayCommand(Exec_ButtonClick);
 
-            Name = property.Path;
+            Name = JToken.Path;
 
-            switch (property.Type)
+            switch (JToken.Type)
             {
                 case JTokenType.Array:
                     CharIcon = " [ ]";
                     Type = "array";
 
                     if (Name.Contains("."))
-                        Name = FindArrayName(property);
+                        Name = FindArrayName(JToken);
 
                     break;
 
@@ -73,17 +71,17 @@ namespace JSEEN.VMs
                     MainPageVM.Panels.Add(panel);
             }
 
-            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(Property) });
+            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(JToken) });
 
             Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
         }
 
-        private string FindArrayName(JToken property)
+        private string FindArrayName(JToken jToken)
         {
-            if (property is JProperty)
-                return ((JProperty)property).Name;
+            if (jToken is JProperty property)
+                return property.Name;
             else
-                return FindArrayName(property.Parent);
+                return FindArrayName(jToken.Parent);
         }
         private string ParseObjectName()
         {

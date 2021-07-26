@@ -20,9 +20,9 @@ namespace JSEEN.VMs
 
         public JToken JToken { get; private set; }
 
-        public SingleLayerVM(JToken property)
+        public SingleLayerVM(JToken jToken)
         {
-            JToken = property;
+            JToken = jToken;
 
             Panel = new StackPanel()
             {
@@ -37,7 +37,7 @@ namespace JSEEN.VMs
                 UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             });
 
-            Controls = ControlsHelper.GetLayerControls(property);
+            Controls = ControlsHelper.GetLayerControls(JToken);
 
             foreach (FrameworkElement control in Controls)
                 Panel.Children.Add(control);

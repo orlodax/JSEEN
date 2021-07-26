@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
@@ -121,7 +120,7 @@ namespace JSEEN.VMs
                     {
                         var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
 
-                        if (tokens.Contains(nbVM.Property))
+                        if (tokens.Contains(nbVM.JToken))
                             nbVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
                         else
                             nbVM.Background = new SolidColorBrush(new Windows.UI.Color { A = 0, R = 0, G = 0, B = 0 });

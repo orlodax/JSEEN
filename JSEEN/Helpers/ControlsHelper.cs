@@ -128,7 +128,8 @@ namespace JSEEN.Helpers
                 FontSize = 14,
                 Padding= new Thickness(10),
                 FontStyle = Windows.UI.Text.FontStyle.Italic,
-                Width = 180,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
+                Width = 180
             };
         }
         #endregion

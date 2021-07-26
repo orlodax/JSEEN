@@ -1,6 +1,4 @@
 ﻿using JSEEN.VMs;
-using System;
-using System.Threading;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
