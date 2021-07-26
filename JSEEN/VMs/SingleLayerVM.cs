@@ -12,12 +12,12 @@ namespace JSEEN.VMs
     public class SingleLayerVM : Observable
     {
         private Brush background;
-        private StackPanel panel;
-
         public Brush Background { get => background; set => SetValue(ref background, value); }
-        public StackPanel Panel { get => panel; set => SetValue(ref panel, value); }
-        public List<FrameworkElement> Controls { get; set; }
 
+        private StackPanel panel;
+        public StackPanel Panel { get => panel; set => SetValue(ref panel, value); }
+        
+        public List<FrameworkElement> Controls { get; private set; }
         public JToken JToken { get; private set; }
 
         public SingleLayerVM(JToken jToken)
@@ -27,7 +27,9 @@ namespace JSEEN.VMs
             Panel = new StackPanel()
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(10)
+                Padding = new Thickness(10),
+                BorderBrush = new SolidColorBrush(new Windows.UI.Color { A = 125, R = 125, G = 125, B = 125 }),
+                BorderThickness = new Thickness(1)
             };
             Panel.SetBinding(Windows.UI.Xaml.Controls.Panel.BackgroundProperty, new Binding()
             {

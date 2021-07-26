@@ -35,7 +35,7 @@ namespace JSEEN.VMs
         /// </summary>
         private List<TreeItem> workspaceTree = new List<TreeItem>();
         public List<TreeItem> WorkspaceTree { get => workspaceTree; set => SetValue(ref workspaceTree, value); }
-        
+
         /// <summary>
         /// Displays path of currently selected JToken
         /// </summary>
@@ -52,20 +52,25 @@ namespace JSEEN.VMs
         /// List of grid/stackpanel holding a single layer's controls
         /// </summary>
         public static ObservableCollection<SingleLayer> Panels { get; set; } = new ObservableCollection<SingleLayer>();
+
+        /// <summary>
+        /// Progress bar loading folders
+        /// </summary>
+        private bool progressBarVisibility;
+        public bool ProgressBarVisibility { get => progressBarVisibility; set => SetValue(ref progressBarVisibility, value); }
+
         #endregion
 
         #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
         public ICommand SaveFiles { get; private set; }
         public ICommand TreeItemSelected { get; private set; }
-        
+
         #endregion
 
         #region CTOR
         public MainPageVM()
         {
-            //to reset the folder in debug
-            //ApplicationData.Current.LocalSettings.Values["workSpace"] = null;
             ChooseFolder = new RelayCommand(Exec_ChooseFolder);
             SaveFiles = new RelayCommand(Exec_SaveFiles);
             TreeItemSelected = new RelayCommand(Exec_TreeItemSelected);
@@ -79,11 +84,39 @@ namespace JSEEN.VMs
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem("workSpace"))
                 Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
 
+            ProgressBarVisibility = true;
+
             if (Workspace != null)
                 WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
             else
                 Exec_ChooseFolder(null);
+
+            ProgressBarVisibility = false;
         }
+        //private async void LogError(object sender, System.UnhandledExceptionEventArgs e)
+        //{
+        //    if (Workspace != null)
+        //    {
+        //        var sb = new System.Text.StringBuilder();
+        //        sb.AppendLine(e.ExceptionObject.ToString());
+        //        sb.AppendLine();
+        //        sb.AppendLine(e.ToString());
+
+        //        StorageFile sampleFile = await Workspace.CreateFileAsync("errorlog.txt", CreationCollisionOption.ReplaceExisting);
+
+        //        await FileIO.WriteTextAsync(sampleFile, sb.ToString());
+
+        //        var dialog = new ContentDialog
+        //        {
+        //            Title = "Error",
+        //            CloseButtonText = "Close",
+        //            DefaultButton = ContentDialogButton.Close,
+        //            Content = "Sorry about that. I'd appreciate if you could email the file errorlog.txt which was created in your workspace folder. Thank you."
+        //        };
+
+        //        _ = await dialog.ShowAsync();
+        //    }
+        //}
         #endregion
 
         #region "Events"
@@ -121,7 +154,7 @@ namespace JSEEN.VMs
                         var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
 
                         if (tokens.Contains(nbVM.JToken))
-                            nbVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+                            nbVM.Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
                         else
                             nbVM.Background = new SolidColorBrush(new Windows.UI.Color { A = 0, R = 0, G = 0, B = 0 });
                     }
@@ -133,7 +166,7 @@ namespace JSEEN.VMs
                         if (!lastLayerVM.Panel.Children.Any())
                             lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
                         else
-                            lastLayerVM.Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+                            lastLayerVM.Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
                     }
                 }
             }
@@ -156,8 +189,15 @@ namespace JSEEN.VMs
                 // Application now has read/write access to all contents in the picked folder
                 StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", Workspace);
 
+                ProgressBarVisibility = true;
+
                 WorkspaceTree.Clear();
+                PanelsView.Children?.Clear();
+                Panels.Clear();
+
                 WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
+
+                ProgressBarVisibility = false;
             }
         }
         // recursively opens all jsons under main folder selected as Workspace
@@ -187,7 +227,6 @@ namespace JSEEN.VMs
                     });
                 }
             }
-
             // remove folders without jsons inside
             treeList.RemoveAll(t => t.StorageItem is StorageFolder && !t.Children.Any());
 
@@ -195,7 +234,7 @@ namespace JSEEN.VMs
         }
         private async void Exec_SaveFiles(object parameter)
         {
-            foreach (TreeItem treeItem in WorkspaceTree.Where(t => t.StorageItem is StorageFile))
+            foreach (TreeItem treeItem in WorkspaceTree.SelectMany(ti => ti.Children).Where(ti => ti.StorageItem is StorageFile))
             {
                 if (treeItem.JObject != null)
                 {
@@ -215,6 +254,7 @@ namespace JSEEN.VMs
                     //save previous item and swith to the current one
                     if (CurrentItem != null)
                         await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject));
+
                     CurrentItem = treeItem;
 
                     if (CurrentItem.JObject == null)
@@ -225,7 +265,7 @@ namespace JSEEN.VMs
                         }
                         catch (Exception e)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            var dialog = new ContentDialog
                             {
                                 Title = "Error",
                                 CloseButtonText = "Close",

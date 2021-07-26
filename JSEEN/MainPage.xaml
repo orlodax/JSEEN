@@ -13,9 +13,9 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <RelativePanel>
+    <RelativePanel Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
-        <Grid x:Name="AppTitleBar" Background="Transparent" 
+        <Grid x:Name="AppTitleBar" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
               RelativePanel.AlignLeftWithPanel="True" 
               RelativePanel.AlignRightWithPanel="True"
               RelativePanel.AlignTopWithPanel="True">
@@ -41,8 +41,6 @@
                        Grid.Column="1" 
                        Style="{StaticResource CaptionTextBlockStyle}" 
                        Margin="44,0,10,0"/>
-
-            
             
             <!-- CURSOR -->
             <TextBlock  Grid.Column="2"
@@ -57,25 +55,16 @@
                         VerticalAlignment="Stretch"
                         Background="{ThemeResource SystemControlAcrylicElementBrush}">
                 <TextBlock  x:Name="jPath"
-                            Margin="5,7"
+                            Margin="5,6"
                             Foreground="{ThemeResource SystemAccentColorLight1}"
                             FontStyle="Italic"
                             Text="{Binding JPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
             <!-- EXTRAS -->
-            <Grid Grid.Column="4" Padding="0,0,100,0">
-                <!-- OTHER INFO-->
-                <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Rectangle Fill="Red" Width="30" Height="30"/>
-                </StackPanel>
-                <StackPanel Visibility="{Binding IsOnline, UpdateSourceTrigger=PropertyChanged}" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Rectangle Fill="Green" Width="30" Height="30"/>
-                </StackPanel>-->
-            </Grid>
-
+            <Grid Grid.Column="4" Padding="0,0,100,0"/>
         </Grid>
 
-        <RelativePanel x:Name="buttons" RelativePanel.Below="AppTitleBar" Width="200" >
+        <RelativePanel x:Name="buttons" RelativePanel.Below="AppTitleBar" Width="200" Background="{ThemeResource AppBarBackgroundThemeBrush}" >
             <Button Command="{Binding ChooseFolder}"
                     x:Name="openButton"
                     Background="Transparent"
@@ -87,7 +76,7 @@
             </Button>
             <Button Command="{Binding SaveFiles}"
                     Background="Transparent"
-                    ToolTipService.ToolTip="Open folder..."
+                    ToolTipService.ToolTip="Save all"
                     RelativePanel.LeftOf="openButton">
                 <Button.Content>
                     <SymbolIcon Symbol="Save"/>
@@ -95,19 +84,35 @@
             </Button>
         </RelativePanel>
 
+        <TextBlock x:Name="headerLabel" 
+                   Text="Worspace:"
+                   FontStyle="Italic"
+                   FontSize="10"
+                   Margin="35,10,0,0"
+                   RelativePanel.Below="buttons"/>
         <TextBlock x:Name="treeviewHeader"
-                   Margin="35,10"
+                   Margin="35,0,0,10"
                    FontStyle="Italic"
                    Foreground="{ThemeResource SystemAccentColorLight1}"
-                   RelativePanel.Below="buttons"
+                   RelativePanel.Below="headerLabel"
                    Text="{Binding Workspace.DisplayName}"/>
 
+        <ProgressRing IsActive="{Binding ProgressBarVisibility}"
+                      Width="50" 
+                      Height="50"
+                      Margin="0,50"
+                      Background="{ThemeResource SystemControlAcrylicWindowBrush}"
+                      RelativePanel.AlignTopWith="treeviewHeader"
+                      RelativePanel.Below="treeviewHeader"
+                      RelativePanel.AlignHorizontalCenterWith="treeView"/>
+
         <TreeView x:Name="treeView"
-                  Background="{ThemeResource SystemControlAcrylicElementBrush}"
-                  BorderBrush="{ThemeResource SystemAccentColor}"
-                  BorderThickness="2"
                   Width="200"
                   ScrollViewer.IsHorizontalRailEnabled="True"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollMode="Enabled"
+                  ScrollViewer.HorizontalScrollMode="Enabled"
                   RelativePanel.Below="treeviewHeader"
                   RelativePanel.AlignLeftWithPanel="True"
                   RelativePanel.AlignBottomWithPanel="True"
@@ -132,6 +137,7 @@
         </TreeView>
 
         <ScrollViewer x:Name="mainContainer"
+                      Background="{ThemeResource AppBarBackgroundThemeBrush}"
                      RelativePanel.Below="AppTitleBar"
                      RelativePanel.RightOf="treeView"
                      RelativePanel.AlignBottomWithPanel="True"

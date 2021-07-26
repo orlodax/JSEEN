@@ -73,7 +73,7 @@ namespace JSEEN.VMs
 
             MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(JToken) });
 
-            Background = new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColorDark3"]);
+            Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
         }
 
         private string FindArrayName(JToken jToken)

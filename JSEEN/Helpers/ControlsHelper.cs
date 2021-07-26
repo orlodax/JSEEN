@@ -100,7 +100,7 @@ namespace JSEEN.Helpers
             {
                 DataContext = subToken,
                 Header = propertyName,
-                Width = 180,
+                Width = 178,
                 Margin = new Thickness(0, 0, 0, 10),
                 TextWrapping = TextWrapping.Wrap
             };
@@ -129,7 +129,7 @@ namespace JSEEN.Helpers
                 Padding= new Thickness(10),
                 FontStyle = Windows.UI.Text.FontStyle.Italic,
                 FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Width = 180
+                Width = 178
             };
         }
         #endregion
