@@ -28,7 +28,7 @@ namespace JSEEN.VMs
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Padding = new Thickness(10),
-                BorderBrush = new SolidColorBrush(new Windows.UI.Color { A = 125, R = 125, G = 125, B = 125 }),
+                BorderBrush = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"],
                 BorderThickness = new Thickness(1)
             };
             Panel.SetBinding(Windows.UI.Xaml.Controls.Panel.BackgroundProperty, new Binding()

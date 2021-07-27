@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="8db78203-d39f-4105-a7fd-0dae917e68fe"
-    Publisher="CN=orlod"
-    Version="1.0.0.0" />
+    Name="10875DarioOrlovich.Jseen"
+    Publisher="CN=1ACCF57A-4CD1-4531-B679-BCD5C930115E"
+    Version="1.0.1.0" />
 
-  <mp:PhoneIdentity PhoneProductId="8db78203-d39f-4105-a7fd-0dae917e68fe" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="bf105c98-b943-4eaa-a206-b787926b6313" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>JSEEN</DisplayName>
-    <PublisherDisplayName>orlod</PublisherDisplayName>
+    <DisplayName>Jseen</DisplayName>
+    <PublisherDisplayName>Dario Orlovich</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -32,7 +32,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="JSEEN.App">
       <uap:VisualElements
-        DisplayName="JSEEN"
+        DisplayName="Jseen"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="JSEEN"

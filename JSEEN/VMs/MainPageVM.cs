@@ -93,30 +93,6 @@ namespace JSEEN.VMs
 
             ProgressBarVisibility = false;
         }
-        //private async void LogError(object sender, System.UnhandledExceptionEventArgs e)
-        //{
-        //    if (Workspace != null)
-        //    {
-        //        var sb = new System.Text.StringBuilder();
-        //        sb.AppendLine(e.ExceptionObject.ToString());
-        //        sb.AppendLine();
-        //        sb.AppendLine(e.ToString());
-
-        //        StorageFile sampleFile = await Workspace.CreateFileAsync("errorlog.txt", CreationCollisionOption.ReplaceExisting);
-
-        //        await FileIO.WriteTextAsync(sampleFile, sb.ToString());
-
-        //        var dialog = new ContentDialog
-        //        {
-        //            Title = "Error",
-        //            CloseButtonText = "Close",
-        //            DefaultButton = ContentDialogButton.Close,
-        //            Content = "Sorry about that. I'd appreciate if you could email the file errorlog.txt which was created in your workspace folder. Thank you."
-        //        };
-
-        //        _ = await dialog.ShowAsync();
-        //    }
-        //}
         #endregion
 
         #region "Events"
