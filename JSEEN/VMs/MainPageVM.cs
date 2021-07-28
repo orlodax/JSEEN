@@ -98,7 +98,7 @@ namespace JSEEN.VMs
         #region "Events"
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
             {
                 PanelsView.Children.Clear();
                 PanelsView = new StackPanel()
@@ -106,8 +106,12 @@ namespace JSEEN.VMs
                     HorizontalAlignment = HorizontalAlignment.Left,
                     Orientation = Orientation.Horizontal
                 };
+            }
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                PanelsView.Children.Clear();
 
-                var lastPanel = Panels.Last();
+                SingleLayer lastPanel = Panels.Last();
 
                 // update jpath
                 JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
@@ -228,37 +232,37 @@ namespace JSEEN.VMs
                 if (!string.IsNullOrEmpty(treeItem.Content))
                 {
                     //save previous item and swith to the current one
-                    if (CurrentItem != null)
+                    if (CurrentItem?.JObject != null)
                         await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject));
 
                     CurrentItem = treeItem;
 
-                    if (CurrentItem.JObject == null)
+                    try
                     {
-                        try
-                        {
+                        if (CurrentItem.JObject == null)
                             CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(treeItem.Content);
 
-                            PanelsView = new StackPanel()
-                            {
-                                HorizontalAlignment = HorizontalAlignment.Left,
-                                Orientation = Orientation.Horizontal
-                            };
-                            Panels.Clear();
-                            Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
-                        }
-                        catch (Exception e)
+                        PanelsView = new StackPanel()
                         {
-                            var dialog = new ContentDialog
-                            {
-                                Title = "File not valid",
-                                CloseButtonText = "Close",
-                                DefaultButton = ContentDialogButton.Close,
-                                Content = e.Message
-                            };
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            Orientation = Orientation.Horizontal
+                        };
+                        Panels.Clear();
+                        Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
+                    }
+                    catch (Exception e)
+                    {
+                        Panels.Clear();
 
-                            _ = await dialog.ShowAsync();
-                        }
+                        var dialog = new ContentDialog
+                        {
+                            Title = "File not valid",
+                            CloseButtonText = "Close",
+                            DefaultButton = ContentDialogButton.Close,
+                            Content = e.Message
+                        };
+
+                        _ = await dialog.ShowAsync();
                     }
                 }
             }
