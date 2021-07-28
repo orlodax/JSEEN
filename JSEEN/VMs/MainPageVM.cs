@@ -214,11 +214,11 @@ namespace JSEEN.VMs
         }
         private async void Exec_SaveFiles(object parameter)
         {
-            foreach (TreeItem treeItem in WorkspaceTree.SelectMany(ti => ti.Children).Where(ti => ti.StorageItem is StorageFile))
+            foreach (TreeItem treeItem in WorkspaceTree)
             {
                 if (treeItem.JObject != null)
                 {
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(treeItem.JObject);
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(treeItem.JObject, Newtonsoft.Json.Formatting.Indented);
                     await FileIO.WriteTextAsync(treeItem.StorageItem as StorageFile, json);
                 }
             }
@@ -233,7 +233,7 @@ namespace JSEEN.VMs
                 {
                     //save previous item and swith to the current one
                     if (CurrentItem?.JObject != null)
-                        await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject));
+                        await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject, Newtonsoft.Json.Formatting.Indented));
 
                     CurrentItem = treeItem;
 
