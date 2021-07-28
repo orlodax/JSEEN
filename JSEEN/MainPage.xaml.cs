@@ -31,7 +31,7 @@ namespace JSEEN
             DataContext = e.Parameter;
         }
 
-        // for some reason I don't care enough to ascertain, both of the events needs to call FollowSelection
+        // for some reason I don't care enough to ascertain, both of the events need to call FollowSelection
         private void MainContainer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             FollowSelection();
