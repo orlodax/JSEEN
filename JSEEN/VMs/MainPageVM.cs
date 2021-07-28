@@ -238,12 +238,20 @@ namespace JSEEN.VMs
                         try
                         {
                             CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(treeItem.Content);
+
+                            PanelsView = new StackPanel()
+                            {
+                                HorizontalAlignment = HorizontalAlignment.Left,
+                                Orientation = Orientation.Horizontal
+                            };
+                            Panels.Clear();
+                            Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
                         }
                         catch (Exception e)
                         {
                             var dialog = new ContentDialog
                             {
-                                Title = "Error",
+                                Title = "File not valid",
                                 CloseButtonText = "Close",
                                 DefaultButton = ContentDialogButton.Close,
                                 Content = e.Message
@@ -252,14 +260,6 @@ namespace JSEEN.VMs
                             _ = await dialog.ShowAsync();
                         }
                     }
-
-                    PanelsView = new StackPanel()
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        Orientation = Orientation.Horizontal
-                    };
-                    Panels.Clear();
-                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
                 }
             }
         }
