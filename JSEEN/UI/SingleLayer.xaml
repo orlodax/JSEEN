@@ -12,5 +12,4 @@
     ScrollViewer.IsVerticalRailEnabled="True"
     ScrollViewer.VerticalScrollMode="Enabled"
     ScrollViewer.VerticalScrollBarVisibility="Visible"
-    Content="{Binding Panel}"
-    />
+    Content="{Binding Panel}"/>

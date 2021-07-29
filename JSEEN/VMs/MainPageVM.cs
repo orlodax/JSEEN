@@ -33,8 +33,8 @@ namespace JSEEN.VMs
         /// <summary>
         /// List feeding the treeview
         /// </summary>
-        private List<TreeItem> workspaceTree = new List<TreeItem>();
-        public List<TreeItem> WorkspaceTree { get => workspaceTree; set => SetValue(ref workspaceTree, value); }
+        private ObservableCollection<TreeItem> workspaceTree = new ObservableCollection<TreeItem>();
+        public ObservableCollection<TreeItem> WorkspaceTree { get => workspaceTree; set => SetValue(ref workspaceTree, value); }
 
         /// <summary>
         /// Displays path of currently selected JToken
@@ -64,6 +64,7 @@ namespace JSEEN.VMs
         #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
         public ICommand SaveFile { get; private set; }
+        public ICommand NewFile { get; private set; }
         public ICommand TreeItemSelected { get; private set; }
 
         #endregion
@@ -73,6 +74,7 @@ namespace JSEEN.VMs
         {
             ChooseFolder = new RelayCommand(Exec_ChooseFolder);
             SaveFile = new RelayCommand(Exec_SaveFile);
+            NewFile = new RelayCommand(Exec_NewFile);
             TreeItemSelected = new RelayCommand(Exec_TreeItemSelected);
 
             Panels.CollectionChanged += Panels_CollectionChanged;
@@ -181,7 +183,7 @@ namespace JSEEN.VMs
             }
         }
         // recursively opens all jsons under main folder selected as Workspace
-        private async Task<List<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
+        private async Task<ObservableCollection<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
         {
             var treeList = new List<TreeItem>();
 
@@ -194,7 +196,6 @@ namespace JSEEN.VMs
                     treeList.Add(new TreeItem(file)
                     {
                         Content = await FileIO.ReadTextAsync(file),
-                        Name = file.DisplayName
                     });
                 }
 
@@ -203,14 +204,13 @@ namespace JSEEN.VMs
                     treeList.Add(new TreeItem(subFolder)
                     {
                         Children = await PopulateWorspaceRecursively(subFolder),
-                        Name = subFolder.DisplayName
                     });
                 }
             }
             // remove folders without jsons inside
             treeList.RemoveAll(t => t.StorageItem is StorageFolder && !t.Children.Any());
 
-            return treeList;
+            return new ObservableCollection<TreeItem>(treeList);
         }
         private async void Exec_SaveFile(object parameter)
         {
@@ -256,6 +256,45 @@ namespace JSEEN.VMs
                         };
 
                         _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+        private async void Exec_NewFile(object parameter)
+        {
+            var dialog = new ContentDialogPlain();
+            ContentDialogResult result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                string fileName = dialog.Text;
+
+                if (Workspace != null)
+                {
+                    if (!WorkspaceTree.Any(t => t.Name == fileName))
+                    {
+                        StorageFile newFile = await Workspace.CreateFileAsync(fileName + ".json");
+                        var newJObject = new JObject();
+                        await FileIO.WriteTextAsync(newFile, Newtonsoft.Json.JsonConvert.SerializeObject(newJObject));
+                        var newItem = new TreeItem(newFile)
+                        {
+                            Content = await FileIO.ReadTextAsync(newFile)
+                        };
+
+                        WorkspaceTree.Add(newItem);
+                    }
+                    else
+                    {
+                        var cd = new ContentDialog
+                        {
+                            Title = "File already exists",
+                            CloseButtonText = "Close",
+                            DefaultButton = ContentDialogButton.Close,
+                            Content = "Please provide a different name."
+                        };
+
+                        _ = await cd.ShowAsync();
+
+                        Exec_NewFile(parameter);
                     }
                 }
             }

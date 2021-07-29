@@ -75,11 +75,20 @@
                 </Button.Content>
             </Button>
             <Button Command="{Binding SaveFile}"
+                    x:Name="saveButton"
                     Background="Transparent"
                     ToolTipService.ToolTip="Save all"
                     RelativePanel.LeftOf="openButton">
                 <Button.Content>
                     <SymbolIcon Symbol="Save"/>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding NewFile}"
+                    Background="Transparent"
+                    ToolTipService.ToolTip="New file..."
+                    RelativePanel.LeftOf="saveButton">
+                <Button.Content>
+                    <SymbolIcon Symbol="Add"/>
                 </Button.Content>
             </Button>
         </RelativePanel>

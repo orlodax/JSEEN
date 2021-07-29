@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Windows.Storage;
 
 namespace JSEEN.WorkspaceTree
@@ -9,7 +9,7 @@ namespace JSEEN.WorkspaceTree
         public string Name { get; set; }
         public string Content { get; set; }
         public Windows.UI.Xaml.Controls.Symbol Glyph { get; set; }
-        public List<TreeItem> Children { get; set; } = new List<TreeItem>();
+        public ObservableCollection<TreeItem> Children { get; set; } = new ObservableCollection<TreeItem>();
         public JObject JObject { get; set; } = null;
         public IStorageItem StorageItem { get; set; }
 
@@ -18,11 +18,13 @@ namespace JSEEN.WorkspaceTree
             StorageItem = item;
             switch (item)
             {
-                case StorageFile _:
+                case StorageFile file:
                     Glyph = Windows.UI.Xaml.Controls.Symbol.Document;
+                    Name = file.DisplayName;
                     break;
-                case StorageFolder _:
+                case StorageFolder folder:
                     Glyph = Windows.UI.Xaml.Controls.Symbol.Folder;
+                    Name = folder.DisplayName;
                     break;
                 default:
                     break;
