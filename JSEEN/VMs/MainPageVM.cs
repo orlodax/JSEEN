@@ -63,7 +63,7 @@ namespace JSEEN.VMs
 
         #region Commands definitions
         public ICommand ChooseFolder { get; private set; }
-        public ICommand SaveFiles { get; private set; }
+        public ICommand SaveFile { get; private set; }
         public ICommand TreeItemSelected { get; private set; }
 
         #endregion
@@ -72,7 +72,7 @@ namespace JSEEN.VMs
         public MainPageVM()
         {
             ChooseFolder = new RelayCommand(Exec_ChooseFolder);
-            SaveFiles = new RelayCommand(Exec_SaveFiles);
+            SaveFile = new RelayCommand(Exec_SaveFile);
             TreeItemSelected = new RelayCommand(Exec_TreeItemSelected);
 
             Panels.CollectionChanged += Panels_CollectionChanged;
@@ -212,16 +212,10 @@ namespace JSEEN.VMs
 
             return treeList;
         }
-        private async void Exec_SaveFiles(object parameter)
+        private async void Exec_SaveFile(object parameter)
         {
-            foreach (TreeItem treeItem in WorkspaceTree)
-            {
-                if (treeItem.JObject != null)
-                {
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(treeItem.JObject, Newtonsoft.Json.Formatting.Indented);
-                    await FileIO.WriteTextAsync(treeItem.StorageItem as StorageFile, json);
-                }
-            }
+            if (CurrentItem?.JObject != null)
+                await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject, Newtonsoft.Json.Formatting.Indented));
         }
         private async void Exec_TreeItemSelected(object parameter)
         {
@@ -232,8 +226,7 @@ namespace JSEEN.VMs
                 if (!string.IsNullOrEmpty(treeItem.Content))
                 {
                     //save previous item and swith to the current one
-                    if (CurrentItem?.JObject != null)
-                        await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject, Newtonsoft.Json.Formatting.Indented));
+                    Exec_SaveFile(null);
 
                     CurrentItem = treeItem;
 

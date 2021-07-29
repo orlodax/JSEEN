@@ -9,7 +9,7 @@
   <Identity
     Name="10875DarioOrlovich.Jseen"
     Publisher="CN=1ACCF57A-4CD1-4531-B679-BCD5C930115E"
-    Version="1.0.5.0" />
+    Version="1.0.7.0" />
 
   <mp:PhoneIdentity PhoneProductId="bf105c98-b943-4eaa-a206-b787926b6313" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

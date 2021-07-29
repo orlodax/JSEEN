@@ -74,7 +74,7 @@
                     <SymbolIcon Symbol="NewFolder"/>
                 </Button.Content>
             </Button>
-            <Button Command="{Binding SaveFiles}"
+            <Button Command="{Binding SaveFile}"
                     Background="Transparent"
                     ToolTipService.ToolTip="Save all"
                     RelativePanel.LeftOf="openButton">
