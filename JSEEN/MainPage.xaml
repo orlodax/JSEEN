@@ -71,13 +71,13 @@
                     ToolTipService.ToolTip="Open folder..."
                     RelativePanel.AlignRightWithPanel="True">
                 <Button.Content>
-                    <SymbolIcon Symbol="NewFolder"/>
+                    <FontIcon Glyph="&#xED43;"/>
                 </Button.Content>
             </Button>
             <Button Command="{Binding SaveFile}"
                     x:Name="saveButton"
                     Background="Transparent"
-                    ToolTipService.ToolTip="Save all"
+                    ToolTipService.ToolTip="Save"
                     RelativePanel.LeftOf="openButton">
                 <Button.Content>
                     <SymbolIcon Symbol="Save"/>

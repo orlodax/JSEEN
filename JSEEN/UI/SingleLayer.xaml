@@ -11,5 +11,49 @@
     HorizontalAlignment="Left"
     ScrollViewer.IsVerticalRailEnabled="True"
     ScrollViewer.VerticalScrollMode="Enabled"
-    ScrollViewer.VerticalScrollBarVisibility="Visible"
-    Content="{Binding Panel}"/>
+    ScrollViewer.VerticalScrollBarVisibility="Visible">
+
+    <Grid>
+        <UserControl x:Name="singleLayerContainer"
+                     Content="{Binding Panel}"/>
+        
+        <Button x:Name="flyoutCommands"
+                Background="Transparent"
+                ToolTipService.ToolTip="New file..."
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                    <TextBlock Text="Add.." FontSize="10" Margin="5"/>
+                </StackPanel>
+            </Button.Content>
+            <Button.Flyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Field"
+                                    Command="{Binding Create}"
+                                    CommandParameter="field">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE75D;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Object"
+                                    Command="{Binding Create}"
+                                    CommandParameter="object">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE943;"/>
+                    </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Array"
+                                    Command="{Binding Create}"
+                                    CommandParameter="array">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="[  ]" FontFamily="Segoe"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </Button.Flyout>
+        </Button>
+    </Grid>
+    
+</UserControl>
