@@ -273,8 +273,7 @@ namespace JSEEN.VMs
                     if (!WorkspaceTree.Any(t => t.Name == fileName))
                     {
                         StorageFile newFile = await Workspace.CreateFileAsync(fileName + ".json");
-                        var newJObject = new JObject();
-                        await FileIO.WriteTextAsync(newFile, Newtonsoft.Json.JsonConvert.SerializeObject(newJObject));
+                        await FileIO.WriteTextAsync(newFile, "{}");
                         var newItem = new TreeItem(newFile)
                         {
                             Content = await FileIO.ReadTextAsync(newFile)

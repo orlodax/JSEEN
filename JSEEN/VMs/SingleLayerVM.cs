@@ -2,6 +2,7 @@
 using JSEEN.Helpers;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -20,14 +21,18 @@ namespace JSEEN.VMs
         public List<FrameworkElement> Controls { get; private set; }
         public JToken JToken { get; private set; }
 
+        public ICommand Create { get; private set; }
+
         public SingleLayerVM(JToken jToken)
         {
+            Create = new RelayCommand(Exec_Create);
+
             JToken = jToken;
 
             Panel = new StackPanel()
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(10),
+                Padding = new Thickness(10,30,10,10),
                 BorderBrush = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"],
                 BorderThickness = new Thickness(1)
             };
@@ -43,6 +48,29 @@ namespace JSEEN.VMs
 
             foreach (FrameworkElement control in Controls)
                 Panel.Children.Add(control);
+        }
+
+        private void Exec_Create(object parameter)
+        {
+            string type = parameter.ToString();
+
+            switch (type)
+            {
+                case "field":
+
+                    break;
+
+                case "object":
+
+                    break;
+
+                case "array":
+
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }
