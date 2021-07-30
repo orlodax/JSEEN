@@ -241,7 +241,7 @@ namespace JSEEN.VMs
                             Orientation = Orientation.Horizontal
                         };
                         Panels.Clear();
-                        Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root) });
+                        Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root, Panels.Count()) });
                     }
                     catch (Exception e)
                     {
@@ -262,7 +262,7 @@ namespace JSEEN.VMs
         }
         private async void Exec_NewFile(object parameter)
         {
-            var dialog = new ContentDialogPlain();
+            var dialog = new ContentDialogPlain("File Name");
             ContentDialogResult result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
