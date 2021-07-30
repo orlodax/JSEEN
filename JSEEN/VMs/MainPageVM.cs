@@ -233,7 +233,7 @@ namespace JSEEN.VMs
                     try
                     {
                         if (CurrentItem.JObject == null)
-                            CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(treeItem.Content);
+                            CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JToken>(treeItem.Content);
 
                         PanelsView = new StackPanel()
                         {

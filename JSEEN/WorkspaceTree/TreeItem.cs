@@ -10,7 +10,7 @@ namespace JSEEN.WorkspaceTree
         public string Content { get; set; }
         public Windows.UI.Xaml.Controls.Symbol Glyph { get; set; }
         public List<TreeItem> Children { get; set; } = new List<TreeItem>();
-        public JObject JObject { get; set; } = null;
+        public JToken JObject { get; set; } = null;
         public IStorageItem StorageItem { get; set; }
 
         public TreeItem(IStorageItem item)
