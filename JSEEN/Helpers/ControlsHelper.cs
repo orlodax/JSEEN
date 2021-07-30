@@ -12,14 +12,18 @@ namespace JSEEN.Helpers
     public static class ControlsHelper
     {
         #region Json parser
-        internal static List<FrameworkElement> GetLayerControls(JToken prop, string propertyName = null)
+        internal static List<FrameworkElement> GetLayerControls(JToken prop, int singleLayerIndex, string propertyName = null)
         {
             var controls = new List<FrameworkElement>();
 
-            foreach (JToken child in prop)
+            for (int i = 0; i < prop.Children().Count(); i++)
             {
+                JToken child = prop.Children().ElementAt(i);
+
                 if (child.Type is JTokenType.Object || child.Type is JTokenType.Array)
-                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child) });
+                {
+                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child, singleLayerIndex) });
+                }
                 else
                 {
                     if (string.IsNullOrEmpty(propertyName))
@@ -28,6 +32,9 @@ namespace JSEEN.Helpers
                     if (child is JProperty)
                         propertyName = (child as JProperty).Name;
 
+                    if (prop.Type == JTokenType.Array)
+                        propertyName = prop.Path + $"[{i}]";
+
                     if (child.Children().Count() > 0)
                     {
                         foreach (JToken niece in child)
@@ -35,28 +42,28 @@ namespace JSEEN.Helpers
                             if (niece is JProperty)
                                 propertyName = (niece as JProperty).Name;
 
-                            GetControls(niece, controls, propertyName);
+                            GetControls(niece, controls, singleLayerIndex, propertyName);
                         }
                     }
                     else
                     {
-                        GetControls(child, controls, propertyName);
+                        GetControls(child, controls, singleLayerIndex, propertyName);
                     }
                 }
             }
             return controls;
         }
-        private static void GetControls(JToken child, List<FrameworkElement> controls, string propertyName)
+        private static void GetControls(JToken child, List<FrameworkElement> controls, int singleLayerIndex, string propertyName)
         {
             switch (child.Type)
             {
                 case JTokenType.Property:
-                    controls.AddRange(GetLayerControls(child, propertyName));
+                    controls.AddRange(GetLayerControls(child, singleLayerIndex, propertyName));
                     break;
 
                 case JTokenType.Object:
                 case JTokenType.Array:
-                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child) });
+                    controls.Add(new NestingButton() { DataContext = new NestingButtonVM(child, singleLayerIndex) });
                     break;
 
                 case JTokenType.Boolean:
@@ -87,6 +94,58 @@ namespace JSEEN.Helpers
         #endregion
 
         #region Controls Builder
+        internal static FrameworkElement AddSingleControl(JToken parent, string newPropertyName, string propertyType, int index)
+        {
+            if (parent.Type != JTokenType.Array)
+            {
+                if (string.IsNullOrEmpty(newPropertyName) && parent.Type != JTokenType.Array)
+                    newPropertyName = $"field{parent.Children().Count()}";
+            }
+            else
+                newPropertyName = parent.Path + $"[{parent.Children().Count()}]";
+
+            FrameworkElement control = null;
+            JProperty property = null;
+            switch (propertyType)
+            {
+                case "Field":
+                    property = new JProperty(newPropertyName, "null");
+                    control = CreateTextBox(property.Value, newPropertyName);
+                    break;
+
+                case "Object":
+                    property = new JProperty(newPropertyName, new JObject());
+                    control = new NestingButton() { DataContext = new NestingButtonVM(property.Value, index) };
+                    break;
+
+                case "Array":
+                    property = new JProperty(newPropertyName, new List<object>());
+                    control = new NestingButton() { DataContext = new NestingButtonVM(property.Value, index) };
+                    break;
+
+                default:
+                    break;
+            }
+
+            JEnumerable<JToken> children = parent.Children();
+            if (children.Any())
+            {
+                if (parent.Type == JTokenType.Array)
+                    children.Last().AddAfterSelf(property.Value);
+                else
+                    children.Last().AddAfterSelf(property);
+            }
+            else
+            {
+                if (parent.Type == JTokenType.Array)
+                    (parent as JContainer).AddFirst(property.Value);
+                else
+                    (parent as JContainer).AddFirst(property);
+            }
+
+            return control;
+        }
+
         private static readonly Binding defaultBinding = new Binding()
         {
             Path = new PropertyPath("Value"),

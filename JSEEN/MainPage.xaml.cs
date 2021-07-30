@@ -31,19 +31,27 @@ namespace JSEEN
             DataContext = e.Parameter;
         }
 
-        // for some reason I don't care enough to ascertain, both of the events need to call FollowSelection
+        // for some reason I don't care enough to ascertain, both of the events need to call ScrollTo top right 
         private void MainContainer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            FollowSelection();
+            //if (e.NewSize.Height > e.PreviousSize.Height)
+            //    ScrollTo(0, double.MaxValue);
+            //else
+            // ScrollTo(double.MaxValue, 0);
+            if (e.NewSize.Width > e.PreviousSize.Width)
+                ScrollTo(double.MaxValue, 0);
+            else
+                ScrollTo(0, double.MaxValue);
         }
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                FollowSelection();
+                ScrollTo(double.MaxValue, 0);
         }
-        private void FollowSelection()
+        private void ScrollTo(double X, double Y)
         {
-            _ = mainContainer.ChangeView(double.MaxValue, 0, 1);
+            _ = mainContainer.ChangeView(X, Y, 1);
         }
+  
     }
 }

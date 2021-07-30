@@ -13,7 +13,7 @@
     ScrollViewer.VerticalScrollMode="Enabled"
     ScrollViewer.VerticalScrollBarVisibility="Visible">
 
-    <Grid>
+    <StackPanel BorderBrush="{ThemeResource SystemControlHighlightAltListAccentMediumBrush}" BorderThickness="1">
         <UserControl x:Name="singleLayerContainer"
                      Content="{Binding Panel}"/>
         
@@ -21,7 +21,7 @@
                 Background="Transparent"
                 ToolTipService.ToolTip="New file..."
                 HorizontalAlignment="Right"
-                VerticalAlignment="Top">
+                VerticalAlignment="Bottom">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">
                     <FontIcon Glyph="&#xE70F;" FontSize="16"/>
@@ -32,21 +32,21 @@
                 <MenuFlyout>
                     <MenuFlyoutItem Text="Field"
                                     Command="{Binding Create}"
-                                    CommandParameter="field">
+                                    CommandParameter="Field">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE75D;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
                     <MenuFlyoutItem Text="Object"
                                     Command="{Binding Create}"
-                                    CommandParameter="object">
+                                    CommandParameter="Object">
                     <MenuFlyoutItem.Icon>
                         <FontIcon Glyph="&#xE943;"/>
                     </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
                     <MenuFlyoutItem Text="Array"
                                     Command="{Binding Create}"
-                                    CommandParameter="array">
+                                    CommandParameter="Array">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="[  ]" FontFamily="Segoe"/>
                         </MenuFlyoutItem.Icon>
@@ -54,6 +54,11 @@
                 </MenuFlyout>
             </Button.Flyout>
         </Button>
-    </Grid>
+
+        <ToggleSwitch FontSize="10"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                />
+    </StackPanel>
     
 </UserControl>

@@ -1,6 +1,8 @@
 ﻿using JSEEN.Classes;
 using JSEEN.Helpers;
+using JSEEN.UI;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Windows.UI.Xaml;
@@ -12,29 +14,32 @@ namespace JSEEN.VMs
 {
     public class SingleLayerVM : Observable
     {
+        #region Props
         private Brush background;
         public Brush Background { get => background; set => SetValue(ref background, value); }
 
         private StackPanel panel;
         public StackPanel Panel { get => panel; set => SetValue(ref panel, value); }
-        
+
+        public int SingleLayerIndex { get; set; }
         public List<FrameworkElement> Controls { get; private set; }
         public JToken JToken { get; private set; }
 
         public ICommand Create { get; private set; }
+        #endregion
 
-        public SingleLayerVM(JToken jToken)
+        #region CTOR
+        public SingleLayerVM(JToken jToken, int index)
         {
             Create = new RelayCommand(Exec_Create);
 
             JToken = jToken;
+            SingleLayerIndex = index;
 
             Panel = new StackPanel()
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(10,30,10,10),
-                BorderBrush = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"],
-                BorderThickness = new Thickness(1)
+                Padding = new Thickness(10, 10, 10, 0)
             };
             Panel.SetBinding(Windows.UI.Xaml.Controls.Panel.BackgroundProperty, new Binding()
             {
@@ -44,33 +49,36 @@ namespace JSEEN.VMs
                 UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             });
 
-            Controls = ControlsHelper.GetLayerControls(JToken);
+            Controls = ControlsHelper.GetLayerControls(JToken, SingleLayerIndex);
 
+            PopulatePanelChildren();
+        }
+        private void PopulatePanelChildren()
+        {
             foreach (FrameworkElement control in Controls)
                 Panel.Children.Add(control);
         }
+        #endregion
 
-        private void Exec_Create(object parameter)
+        #region Commands
+        private async void Exec_Create(object parameter)
         {
-            string type = parameter.ToString();
+            string propertyType = parameter.ToString();
 
-            switch (type)
+            var dialog = new ContentDialogPlain(propertyType);
+            ContentDialogResult result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
             {
-                case "field":
+                FrameworkElement newControl = ControlsHelper.AddSingleControl(JToken, dialog.Text, propertyType, SingleLayerIndex);
 
-                    break;
+                // remove "null" label
+                Panel.Children.Clear();
 
-                case "object":
-
-                    break;
-
-                case "array":
-
-                    break;
-
-                default:
-                    break;
+                Controls.Add(newControl);
+                PopulatePanelChildren();
             }
         }
+        #endregion
     }
 }

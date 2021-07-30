@@ -22,10 +22,10 @@ namespace JSEEN.VMs
 
         public ICommand ButtonClick { get; private set; }
 
-        public NestingButtonVM(JToken jToken)
+        public NestingButtonVM(JToken jToken, int singleLayerIndex)
         {
             JToken = jToken;
-            index = MainPageVM.Panels.Count;
+            index = singleLayerIndex;
 
             ButtonClick = new RelayCommand(Exec_ButtonClick);
 
@@ -71,7 +71,7 @@ namespace JSEEN.VMs
                     MainPageVM.Panels.Add(panel);
             }
 
-            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(JToken) });
+            MainPageVM.Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(JToken, index + 1) });
 
             Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
         }

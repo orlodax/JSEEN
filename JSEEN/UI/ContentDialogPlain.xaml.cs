@@ -12,6 +12,11 @@ namespace JSEEN.UI
             set => SetValue(TextProperty, value);
         }
 
+        public ContentDialogPlain(string title)
+        {
+            InitializeComponent();
+            Title = title + " Name";
+        }
         public ContentDialogPlain()
         {
             InitializeComponent();
