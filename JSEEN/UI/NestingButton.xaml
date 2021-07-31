@@ -35,8 +35,8 @@
                    Text="{Binding Name}"/>
 
         <Button x:Name="button"
-                Width="180"
-                Height="50"
+                Width="178"
+                Height="45"
                 Command="{Binding ButtonClick}"/>
 
     </RelativePanel>

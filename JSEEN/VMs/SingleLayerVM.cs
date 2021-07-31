@@ -53,6 +53,7 @@ namespace JSEEN.VMs
 
             PopulatePanelChildren();
         }
+
         private void PopulatePanelChildren()
         {
             foreach (FrameworkElement control in Controls)

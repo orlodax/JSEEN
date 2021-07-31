@@ -14,6 +14,7 @@
     ScrollViewer.VerticalScrollBarVisibility="Visible">
 
     <StackPanel BorderBrush="{ThemeResource SystemControlHighlightAltListAccentMediumBrush}" BorderThickness="1">
+        
         <UserControl x:Name="singleLayerContainer"
                      Content="{Binding Panel}"/>
         
@@ -37,6 +38,13 @@
                             <FontIcon Glyph="&#xE75D;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Bool"
+                                    Command="{Binding Create}"
+                                    CommandParameter="Bool">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE73A;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <MenuFlyoutItem Text="Object"
                                     Command="{Binding Create}"
                                     CommandParameter="Object">
@@ -55,10 +63,6 @@
             </Button.Flyout>
         </Button>
 
-        <ToggleSwitch FontSize="10"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                />
     </StackPanel>
     
 </UserControl>
