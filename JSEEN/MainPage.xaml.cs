@@ -18,7 +18,7 @@ namespace JSEEN
             Window.Current.SetTitleBar(AppTitleBar);
 
             // when content is added to main container, scroll all the way up and right
-            displayPane.SizeChanged += MainContainer_SizeChanged;
+            displayPane.SizeChanged += DisplayPane_SizeChanged;
         }
 
         /// <param name="e" contains the VM></param>
@@ -32,26 +32,19 @@ namespace JSEEN
         }
 
         // for some reason I don't care enough to ascertain, both of the events need to call ScrollTo top right 
-        private void MainContainer_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void DisplayPane_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //if (e.NewSize.Height > e.PreviousSize.Height)
-            //    ScrollTo(0, double.MaxValue);
-            //else
-            // ScrollTo(double.MaxValue, 0);
             if (e.NewSize.Width > e.PreviousSize.Width)
                 ScrollTo(double.MaxValue, 0);
-            else
-                ScrollTo(0, double.MaxValue);
         }
         private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                 ScrollTo(double.MaxValue, 0);
         }
-        private void ScrollTo(double X, double Y)
+        private void ScrollTo(double? X, double? Y)
         {
             _ = mainContainer.ChangeView(X, Y, 1);
         }
-  
     }
 }

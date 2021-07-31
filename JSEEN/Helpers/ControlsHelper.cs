@@ -113,6 +113,11 @@ namespace JSEEN.Helpers
                     control = CreateTextBox(property.Value, newPropertyName);
                     break;
 
+                case "Bool":
+                    property = new JProperty(newPropertyName, "null");
+                    control = CreateCheckBox(property.Value, newPropertyName);
+                    break;
+
                 case "Object":
                     property = new JProperty(newPropertyName, new JObject());
                     control = new NestingButton() { DataContext = new NestingButtonVM(property.Value, index) };
