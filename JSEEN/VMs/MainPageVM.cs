@@ -84,7 +84,13 @@ namespace JSEEN.VMs
         private async void Init()
         {
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem("workSpace"))
-                Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
+            {
+                try
+                {
+                    Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("workSpace");
+                }
+                catch { }
+            }
 
             ProgressBarVisibility = true;
 

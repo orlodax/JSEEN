@@ -65,14 +65,21 @@ namespace JSEEN.VMs
         private async void Exec_Create(object parameter)
         {
             string propertyType = parameter.ToString();
+            string propertyName = string.Empty;
 
-            var dialog = new ContentDialogPlain(propertyType);
-            ContentDialogResult result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
+            if (JToken.Type != JTokenType.Array)
             {
-                FrameworkElement newControl = ControlsHelper.AddSingleControl(JToken, dialog.Text, propertyType, SingleLayerIndex);
+                var dialog = new ContentDialogPlain(propertyType);
+                ContentDialogResult result = await dialog.ShowAsync();
 
+                if (result == ContentDialogResult.Primary)
+                    propertyName = dialog.Text;
+            }
+
+            FrameworkElement newControl = ControlsHelper.AddSingleControl(JToken, propertyName, propertyType, SingleLayerIndex);
+
+            if (newControl != null)
+            {
                 // remove "null" label
                 Panel.Children.Clear();
 
