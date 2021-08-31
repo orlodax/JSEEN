@@ -39,7 +39,6 @@ namespace JSEEN.VMs
 
                     if (Name.Contains("."))
                         Name = FindArrayName(JToken);
-
                     break;
 
                 case JTokenType.Object:
@@ -49,6 +48,9 @@ namespace JSEEN.VMs
                     if (Name.Contains("."))
                         Name = ParseObjectName();
 
+                    // arrays' new children will have path like $['{path}']
+                    if (Name.StartsWith("['") && Name.EndsWith("']"))
+                        Name = Name.Substring(2, Name.Length - 4);
                     break;
 
                 default:
