@@ -102,7 +102,9 @@ namespace JSEEN.Helpers
                     newPropertyName = $"field{parent.Children().Count()}";
             }
             else
+            {
                 newPropertyName = parent.Path + $"[{parent.Children().Count()}]";
+            }
 
             FrameworkElement control = null;
             JProperty property = null;
