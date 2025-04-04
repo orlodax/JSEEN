@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using JSEEN.Models;
 using CommunityToolkit.Mvvm.Input;
+using Windows.Storage.Pickers;
 
 namespace JSEEN.ViewModels;
 
@@ -23,7 +24,17 @@ public partial class MainPageVM : ObservableObject
     /// <summary>
     /// Selected Item from the treeview, contains the string json and reference to its JObject
     /// </summary>
-    public TreeItem? CurrentItem { get; set; }
+    private TreeItem? currentItem;
+    public TreeItem? CurrentItem
+    {
+        get => currentItem;
+        set
+        {
+            Exec_SaveFile();
+            if (SetProperty(ref currentItem, value))
+                _ = SelectItem();
+        }
+    }
 
     /// <summary>
     /// The root folder - all jsons and subfolders with jsons will be loaded in the treeview (file explorer)
@@ -65,7 +76,6 @@ public partial class MainPageVM : ObservableObject
     public ICommand ChooseFolder { get; }
     public ICommand SaveFile { get; }
     public ICommand NewFile { get; }
-    public ICommand TreeItemSelected { get; }
     #endregion
 
     public MainPageVM()
@@ -73,7 +83,6 @@ public partial class MainPageVM : ObservableObject
         ChooseFolder = new RelayCommand(async () => await Exec_ChooseFolder());
         SaveFile = new RelayCommand(Exec_SaveFile);
         NewFile = new RelayCommand(Exec_NewFile);
-        TreeItemSelected = new RelayCommand<object>(Exec_TreeItemSelected); // Updated to use RelayCommand<object>
 
         Panels.CollectionChanged += Panels_CollectionChanged;
 
@@ -145,40 +154,36 @@ public partial class MainPageVM : ObservableObject
             }
         }
     }
-    #endregion
-
-    #region Command methods
     private async Task Exec_ChooseFolder()
     {
-        // if we are changing Workspace, clear access list
-        if (Workspace != null)
-            StorageApplicationPermissions.FutureAccessList.Clear();
-
-        var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-
+        FileOpenPicker filePicker = new();
         // Ensure the picker is initialized with the current window's HWND
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindowHandle);
+        WinRT.Interop.InitializeWithWindow.Initialize(filePicker, App.MainWindowHandle);
+        filePicker.FileTypeFilter.Add(".json");
 
-        Workspace = await folderPicker.PickSingleFolderAsync();
-        if (Workspace != null)
+        StorageFile selectedFile = await filePicker.PickSingleFileAsync();
+        if (selectedFile != null)
         {
-            // Application now has read/write access to all contents in the picked folder
-            StorageApplicationPermissions.FutureAccessList.AddOrReplace(nameof(Workspace), Workspace);
+            Workspace = await selectedFile.GetParentAsync();
+            if (Workspace != null)
+            {
+                // Application now has read/write access to all contents in the picked folder
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace(nameof(Workspace), Workspace);
 
-            ProgressBarVisibility = true;
+                WorkspaceTree.Clear();
+                PanelsView.Children?.Clear();
+                Panels.Clear();
 
-            WorkspaceTree.Clear();
-            PanelsView.Children?.Clear();
-            Panels.Clear();
-
-            WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
-
-            ProgressBarVisibility = false;
+                WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
+                CurrentItem = WorkspaceTree.FirstOrDefault(i => i.Name?.Equals(selectedFile.DisplayName) == true);
+            }
         }
     }
     // recursively opens all jsons under main folder selected as Workspace
-    private static async Task<ObservableCollection<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
+    private async Task<ObservableCollection<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
     {
+        ProgressBarVisibility = true;
+
         List<TreeItem> treeList = [];
 
         IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
@@ -204,6 +209,8 @@ public partial class MainPageVM : ObservableObject
         // remove folders without jsons inside
         treeList.RemoveAll(t => t.StorageItem is StorageFolder && !t.Children.Any());
 
+        ProgressBarVisibility = false;
+
         return [.. treeList];
     }
     private async void Exec_SaveFile()
@@ -211,49 +218,39 @@ public partial class MainPageVM : ObservableObject
         if (CurrentItem?.JObject != null)
             await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject, Newtonsoft.Json.Formatting.Indented));
     }
-    private async void Exec_TreeItemSelected(object? parameter)
+    private async Task SelectItem()
     {
-        if (parameter != null)
+        if (CurrentItem is null || string.IsNullOrEmpty(CurrentItem?.Content))
+            return;
+
+        try
         {
-            var treeItem = (TreeItem)((TreeViewItemInvokedEventArgs)parameter).InvokedItem;
+            if (CurrentItem.JObject == null)
+                CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JToken>(CurrentItem.Content);
 
-            if (!string.IsNullOrEmpty(treeItem.Content))
+            PanelsView = new StackPanel()
             {
-                //save previous item and swith to the current one
-                Exec_SaveFile();
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Orientation = Orientation.Horizontal
+            };
+            Panels.Clear();
 
-                CurrentItem = treeItem;
+            if (CurrentItem.JObject is not null)
+                Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root, Panels.Count) });
+        }
+        catch (Exception e)
+        {
+            Panels.Clear();
 
-                try
-                {
-                    if (CurrentItem.JObject == null)
-                        CurrentItem.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject<JToken>(treeItem.Content);
+            var dialog = new ContentDialog
+            {
+                Title = "File not valid",
+                CloseButtonText = "Close",
+                DefaultButton = ContentDialogButton.Close,
+                Content = e.Message
+            };
 
-                    PanelsView = new StackPanel()
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        Orientation = Orientation.Horizontal
-                    };
-                    Panels.Clear();
-
-                    if (CurrentItem.JObject is not null)
-                        Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root, Panels.Count) });
-                }
-                catch (Exception e)
-                {
-                    Panels.Clear();
-
-                    var dialog = new ContentDialog
-                    {
-                        Title = "File not valid",
-                        CloseButtonText = "Close",
-                        DefaultButton = ContentDialogButton.Close,
-                        Content = e.Message
-                    };
-
-                    _ = await dialog.ShowAsync();
-                }
-            }
+            _ = await dialog.ShowAsync();
         }
     }
     private async void Exec_NewFile()

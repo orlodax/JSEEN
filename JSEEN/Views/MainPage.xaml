@@ -4,7 +4,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:JSEEN"
     xmlns:localViews="using:JSEEN.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -70,7 +69,7 @@
                     x:Name="jPath"
                     Margin="5,6"
                     FontStyle="Italic"
-                    Foreground="{ThemeResource SystemAccentColorLight1}"
+                    Foreground="{ThemeResource SystemBaseMediumColor}"
                     Text="{Binding JPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <!--  EXTRAS  -->
@@ -87,7 +86,7 @@
                 Background="Transparent"
                 BorderThickness="0"
                 Command="{Binding ChooseFolder}"
-                RelativePanel.RightOf="saveButton"
+                RelativePanel.AlignLeftWithPanel="True"
                 ToolTipService.ToolTip="Open folder...">
                 <Button.Content>
                     <FontIcon Glyph="&#xED43;" />
@@ -98,7 +97,7 @@
                 Background="Transparent"
                 BorderThickness="0"
                 Command="{Binding SaveFile}"
-                RelativePanel.AlignLeftWithPanel="True"
+                RelativePanel.RightOf="openButton"
                 ToolTipService.ToolTip="Save">
                 <Button.Content>
                     <SymbolIcon Symbol="Save" />
@@ -123,7 +122,7 @@
             FontSize="10"
             FontStyle="Italic"
             RelativePanel.Below="buttons"
-            Text="Worspace:" />
+            Text="Workspace:" />
         <TextBlock
             x:Name="treeviewHeader"
             Margin="10,0,0,10"
@@ -156,6 +155,7 @@
             ScrollViewer.IsHorizontalRailEnabled="True"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollMode="Enabled"
+            SelectedItem="{Binding CurrentItem, Mode=TwoWay}"
             SelectionMode="Single">
             <TreeView.ItemTemplate>
                 <DataTemplate>
@@ -174,11 +174,6 @@
                     </TreeViewItem>
                 </DataTemplate>
             </TreeView.ItemTemplate>
-            <i:Interaction.Behaviors>
-                <i:EventTriggerBehavior EventName="ItemInvoked">
-                    <i:InvokeCommandAction Command="{Binding TreeItemSelected}" />
-                </i:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
         </TreeView>
 
         <ScrollViewer

@@ -1,12 +1,9 @@
 ﻿using Microsoft.UI.Xaml;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace JSEEN;
 
 /// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
+/// Provides application-specific behavior to supplement the default Application class. /ᐠ｡ꞈ｡ᐟ\
 /// </summary>
 public partial class App : Application
 {
