@@ -1,0 +1,53 @@
+﻿<UserControl
+    x:Class="JSEEN.Views.NestingButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:JSEEN.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vms="using:JSEEN.ViewModels"
+    d:DataContext="{d:DesignInstance Type=vms:NestingButtonVM}"
+    d:DesignHeight="80"
+    d:DesignWidth="200"
+    mc:Ignorable="d">
+
+    <RelativePanel
+        Height="45"
+        Margin="0,0,0,10"
+        Background="{Binding Background}">
+
+        <TextBlock
+            x:Name="icon"
+            Margin="0,0,7,5"
+            FontSize="22"
+            FontWeight="Bold"
+            Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignVerticalCenterWithPanel="True"
+            Text="{Binding CharIcon}" />
+        <TextBlock
+            x:Name="label"
+            Margin="0,6,0,0"
+            FontSize="12"
+            FontStyle="Italic"
+            RelativePanel.AlignTopWithPanel="True"
+            RelativePanel.RightOf="icon"
+            Text="{Binding Type}" />
+        <TextBlock
+            MaxWidth="170"
+            FontSize="14"
+            FontWeight="Bold"
+            RelativePanel.Below="label"
+            RelativePanel.RightOf="icon"
+            Text="{Binding Name}"
+            TextTrimming="CharacterEllipsis" />
+
+        <Button
+            x:Name="button"
+            Width="178"
+            Height="45"
+            Command="{Binding ButtonClick}" />
+
+    </RelativePanel>
+
+</UserControl>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "JSEEN (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "JSEEN (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
