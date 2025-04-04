@@ -77,6 +77,16 @@ public partial class MainPageVM : ObservableObject
 
         Panels.CollectionChanged += Panels_CollectionChanged;
 
+        _ = LoadWorkspaceAsync();
+    }
+
+    private async Task LoadWorkspaceAsync()
+    {
+        Workspace = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(nameof(Workspace));
+        if (Workspace != null)
+        {
+            WorkspaceTree = await PopulateWorspaceRecursively(Workspace);
+        }
     }
 
     #region Event Handlers
@@ -153,7 +163,7 @@ public partial class MainPageVM : ObservableObject
         if (Workspace != null)
         {
             // Application now has read/write access to all contents in the picked folder
-            StorageApplicationPermissions.FutureAccessList.AddOrReplace("workSpace", Workspace);
+            StorageApplicationPermissions.FutureAccessList.AddOrReplace(nameof(Workspace), Workspace);
 
             ProgressBarVisibility = true;
 
