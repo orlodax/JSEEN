@@ -2,23 +2,24 @@
     x:Class="JSEEN.Views.SingleLayer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:JSEEN.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vms="using:JSEEN.ViewModels" d:DataContext="{d:DesignInstance Type=vms:SingleLayerVM}"
-    mc:Ignorable="d"
-    d:DesignHeight="500"
+    xmlns:local="using:JSEEN.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vms="using:JSEEN.ViewModels"
     Width="200"
     HorizontalAlignment="Left"
+    d:DataContext="{d:DesignInstance Type=vms:SingleLayerVM}"
+    d:DesignHeight="500"
     ScrollViewer.IsVerticalRailEnabled="True"
+    ScrollViewer.VerticalScrollBarVisibility="Visible"
     ScrollViewer.VerticalScrollMode="Enabled"
-    ScrollViewer.VerticalScrollBarVisibility="Visible">
+    mc:Ignorable="d">
 
     <StackPanel BorderBrush="{ThemeResource SystemControlHighlightAltListAccentMediumBrush}" BorderThickness="1">
-        
-        <UserControl x:Name="singleLayerContainer"
-                     Content="{Binding Panel}"/>
-        
-        <Button x:Name="flyoutCommands"
+
+        <UserControl x:Name="singleLayerContainer" Content="{Binding Panel}" />
+
+        <!--<Button x:Name="flyoutCommands"
                 Background="Transparent"
                 ToolTipService.ToolTip="New file..."
                 HorizontalAlignment="Right"
@@ -61,8 +62,8 @@
                     </MenuFlyoutItem>
                 </MenuFlyout>
             </Button.Flyout>
-        </Button>
+        </Button>-->
 
     </StackPanel>
-    
+
 </UserControl>

@@ -1,15 +1,16 @@
 ﻿using JSEEN.Helpers;
-using JSEEN.Views;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Windows.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Windows.Input;
+using JSEEN.Views;
 using CommunityToolkit.Mvvm.Input;
+using System.Threading.Tasks;
+using System;
 
 namespace JSEEN.ViewModels;
 
@@ -36,7 +37,7 @@ public partial class SingleLayerVM : ObservableObject
     #region CTOR
     public SingleLayerVM(JToken jToken, int index)
     {
-        Create = new RelayCommand<object>(Exec_Create);
+        Create = new RelayCommand<object>(async (parameter) => await Exec_Create(parameter));
 
         JToken = jToken;
         SingleLayerIndex = index;
@@ -59,7 +60,7 @@ public partial class SingleLayerVM : ObservableObject
         foreach (FrameworkElement control in Controls)
             Panel.Children.Add(control);
     }
-    private async void Exec_Create(object? parameter)
+    private async Task Exec_Create(object? parameter)
     {
         string propertyType = parameter?.ToString() ?? string.Empty;
         string propertyName = string.Empty;

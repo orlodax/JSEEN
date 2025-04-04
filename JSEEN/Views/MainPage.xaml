@@ -98,13 +98,13 @@
                 Background="Transparent"
                 BorderThickness="0"
                 Command="{Binding SaveFile}"
-                RelativePanel.RightOf="addButton"
+                RelativePanel.AlignLeftWithPanel="True"
                 ToolTipService.ToolTip="Save">
                 <Button.Content>
                     <SymbolIcon Symbol="Save" />
                 </Button.Content>
             </Button>
-            <Button
+            <!--<Button
                 x:Name="addButton"
                 Background="Transparent"
                 BorderThickness="0"
@@ -114,7 +114,7 @@
                 <Button.Content>
                     <SymbolIcon Symbol="Add" />
                 </Button.Content>
-            </Button>
+            </Button>-->
         </RelativePanel>
 
         <TextBlock
