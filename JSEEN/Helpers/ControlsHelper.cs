@@ -12,9 +12,9 @@ namespace JSEEN.Helpers;
 public static class ControlsHelper
 {
     #region Json parser
-    internal static List<FrameworkElement> GetLayerControls(JToken prop, int singleLayerIndex, string propertyName = null)
+    internal static List<FrameworkElement> GetLayerControls(JToken prop, int singleLayerIndex, string? propertyName = null)
     {
-        var controls = new List<FrameworkElement>();
+        List<FrameworkElement> controls = [];
 
         for (int i = 0; i < prop.Children().Count(); i++)
         {
@@ -29,8 +29,8 @@ public static class ControlsHelper
                 if (string.IsNullOrEmpty(propertyName))
                     propertyName = child.Path;
 
-                if (child is JProperty)
-                    propertyName = (child as JProperty).Name;
+                if (child is JProperty jChild)
+                    propertyName = jChild.Name;
 
                 if (prop.Type == JTokenType.Array)
                     propertyName = prop.Path + $"[{i}]";
@@ -39,8 +39,8 @@ public static class ControlsHelper
                 {
                     foreach (JToken niece in child)
                     {
-                        if (niece is JProperty)
-                            propertyName = (niece as JProperty).Name;
+                        if (niece is JProperty jNiece)
+                            propertyName = jNiece.Name;
 
                         GetControls(niece, controls, singleLayerIndex, propertyName);
                     }
@@ -91,9 +91,6 @@ public static class ControlsHelper
                 break;
         }
     }
-    #endregion
-
-    #region Controls Builder
     internal static FrameworkElement AddSingleControl(JToken parent, string newPropertyName, string propertyType, int index)
     {
         if (parent.Type != JTokenType.Array)
@@ -106,8 +103,8 @@ public static class ControlsHelper
             newPropertyName = parent.Path + $"[{parent.Children().Count()}]";
         }
 
-        FrameworkElement control = null;
-        JProperty property = null;
+        FrameworkElement? control = null;
+        JProperty property = new(newPropertyName, string.Empty);
         switch (propertyType)
         {
             case "Field":
@@ -142,18 +139,18 @@ public static class ControlsHelper
             else
                 children.Last().AddAfterSelf(property);
         }
-        else
+        else if (parent is JContainer jParent)
         {
             if (parent.Type == JTokenType.Array)
-                (parent as JContainer).AddFirst(property.Value);
+                jParent.AddFirst(property.Value);
             else
-                (parent as JContainer).AddFirst(property);
+                jParent.AddFirst(property);
         }
 
-        return control;
+        return control ?? throw new System.Exception("control cannot be null.");
     }
 
-    private static readonly Binding defaultBinding = new Binding()
+    private static readonly Binding defaultBinding = new()
     {
         Path = new PropertyPath("Value"),
         Mode = BindingMode.TwoWay,
@@ -162,7 +159,7 @@ public static class ControlsHelper
 
     private static TextBox CreateTextBox(JToken subToken, string propertyName)
     {
-        var tb = new TextBox
+        TextBox tb = new()
         {
             DataContext = subToken,
             Header = propertyName,
@@ -176,7 +173,7 @@ public static class ControlsHelper
     }
     private static CheckBox CreateCheckBox(JToken subToken, string propertyName)
     {
-        var cb = new CheckBox
+        CheckBox cb = new()
         {
             DataContext = subToken,
             Content = propertyName

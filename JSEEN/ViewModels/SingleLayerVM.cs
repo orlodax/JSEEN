@@ -13,13 +13,17 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace JSEEN.ViewModels;
 
-public class SingleLayerVM : ObservableObject
+public partial class SingleLayerVM : ObservableObject
 {
     #region Props
-    private Brush background;
-    public Brush Background { get => background; set => SetProperty(ref background, value); }
+    private Brush? background;
+    public Brush? Background { get => background; set => SetProperty(ref background, value); }
 
-    private StackPanel panel;
+    private StackPanel panel = new()
+    {
+        HorizontalAlignment = HorizontalAlignment.Left,
+        Padding = new Thickness(10, 10, 10, 0)
+    };
     public StackPanel Panel { get => panel; set => SetProperty(ref panel, value); }
 
     public int SingleLayerIndex { get; set; }
@@ -37,11 +41,6 @@ public class SingleLayerVM : ObservableObject
         JToken = jToken;
         SingleLayerIndex = index;
 
-        Panel = new StackPanel()
-        {
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Padding = new Thickness(10, 10, 10, 0)
-        };
         Panel.SetBinding(Microsoft.UI.Xaml.Controls.Panel.BackgroundProperty, new Binding()
         {
             Source = Background,
@@ -60,12 +59,9 @@ public class SingleLayerVM : ObservableObject
         foreach (FrameworkElement control in Controls)
             Panel.Children.Add(control);
     }
-    #endregion
-
-    #region Commands
-    private async void Exec_Create(object parameter)
+    private async void Exec_Create(object? parameter)
     {
-        string propertyType = parameter.ToString();
+        string propertyType = parameter?.ToString() ?? string.Empty;
         string propertyName = string.Empty;
 
         if (JToken.Type != JTokenType.Array)

@@ -17,42 +17,42 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace JSEEN.ViewModels;
 
-public class MainPageVM : ObservableObject
+public partial class MainPageVM : ObservableObject
 {
     #region Props and fields
     /// <summary>
     /// Selected Item from the treeview, contains the string json and reference to its JObject
     /// </summary>
-    public TreeItem CurrentItem { get; set; }
+    public TreeItem? CurrentItem { get; set; }
 
     /// <summary>
     /// The root folder - all jsons and subfolders with jsons will be loaded in the treeview (file explorer)
     /// </summary>
-    private StorageFolder workspace = null;
-    public StorageFolder Workspace { get => workspace; set => SetProperty(ref workspace, value); }
+    private StorageFolder? workspace = null;
+    public StorageFolder? Workspace { get => workspace; set => SetProperty(ref workspace, value); }
 
     /// <summary>
     /// List feeding the treeview
     /// </summary>
-    private ObservableCollection<TreeItem> workspaceTree = new ObservableCollection<TreeItem>();
+    private ObservableCollection<TreeItem> workspaceTree = [];
     public ObservableCollection<TreeItem> WorkspaceTree { get => workspaceTree; set => SetProperty(ref workspaceTree, value); }
 
     /// <summary>
     /// Displays path of currently selected JToken
     /// </summary>
-    private string jPath;
-    public string JPath { get => jPath; private set => SetProperty(ref jPath, value); }
+    private string? jPath;
+    public string? JPath { get => jPath; private set => SetProperty(ref jPath, value); }
 
     /// <summary>
     /// Binding to the usercontrol visualizing everything, contains the layers of the json, stacked horizontally, fed by SingleLayer observable collection
     /// </summary>
-    private StackPanel panelsView = new StackPanel();
+    private StackPanel panelsView = new();
     public StackPanel PanelsView { get => panelsView; private set => SetProperty(ref panelsView, value); }
 
     /// <summary>
     /// List of grid/stackpanel holding a single layer's controls
     /// </summary>
-    public static ObservableCollection<SingleLayer> Panels { get; set; } = new ObservableCollection<SingleLayer>();
+    public static ObservableCollection<SingleLayer> Panels { get; set; } = [];
 
     /// <summary>
     /// Progress bar loading folders
@@ -80,7 +80,7 @@ public class MainPageVM : ObservableObject
     }
 
     #region Event Handlers
-    private void Panels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void Panels_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
         {
@@ -98,24 +98,24 @@ public class MainPageVM : ObservableObject
             SingleLayer lastPanel = Panels.Last();
 
             // update jpath
-            JPath = (lastPanel.DataContext as SingleLayerVM).JToken.Path;
+            JPath = ((SingleLayerVM)lastPanel.DataContext).JToken.Path;
 
             // highlight selected elements...
-            IEnumerable<JToken> tokens = Panels.Select(p => (p.DataContext as SingleLayerVM).JToken);
+            IEnumerable<JToken> tokens = Panels.Select(p => ((SingleLayerVM)p.DataContext).JToken);
             foreach (SingleLayer sl in Panels)
             {
                 // use foreach to repopulate PanelsView container
                 PanelsView.Children.Add(sl);
 
                 // turn off selected SingleLayers
-                var slVM = sl.DataContext as SingleLayerVM;
-                slVM.Background = null;
+                var slVM = (SingleLayerVM)sl.DataContext;
+                slVM.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
 
                 // using list of tokens, iterate over buttons to highlight the selected one (compare their JToken)
                 IEnumerable<FrameworkElement> buttons = slVM.Controls.Where(c => c is NestingButton);
                 foreach (FrameworkElement nb in buttons)
                 {
-                    var nbVM = (nb as NestingButton).DataContext as NestingButtonVM;
+                    var nbVM = (NestingButtonVM)((NestingButton)nb).DataContext;
 
                     if (tokens.Contains(nbVM.JToken))
                         nbVM.Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
@@ -126,8 +126,8 @@ public class MainPageVM : ObservableObject
                 // either highlight last panel or display null
                 if (sl == lastPanel)
                 {
-                    var lastLayerVM = sl.DataContext as SingleLayerVM;
-                    if (!lastLayerVM.Panel.Children.Any())
+                    var lastLayerVM = (SingleLayerVM)sl.DataContext;
+                    if (lastLayerVM.Panel.Children.Count == 0)
                         lastLayerVM.Panel.Children.Add(Helpers.ControlsHelper.CreateNullTextBlock());
                     else
                         lastLayerVM.Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
@@ -145,8 +145,6 @@ public class MainPageVM : ObservableObject
             StorageApplicationPermissions.FutureAccessList.Clear();
 
         var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-        //folderPicker.FileTypeFilter.Add("*");
-        //folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
 
         // Ensure the picker is initialized with the current window's HWND
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindowHandle);
@@ -169,9 +167,9 @@ public class MainPageVM : ObservableObject
         }
     }
     // recursively opens all jsons under main folder selected as Workspace
-    private async Task<ObservableCollection<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
+    private static async Task<ObservableCollection<TreeItem>> PopulateWorspaceRecursively(StorageFolder folder)
     {
-        var treeList = new List<TreeItem>();
+        List<TreeItem> treeList = [];
 
         IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
 
@@ -196,18 +194,18 @@ public class MainPageVM : ObservableObject
         // remove folders without jsons inside
         treeList.RemoveAll(t => t.StorageItem is StorageFolder && !t.Children.Any());
 
-        return new ObservableCollection<TreeItem>(treeList);
+        return [.. treeList];
     }
     private async void Exec_SaveFile()
     {
         if (CurrentItem?.JObject != null)
             await FileIO.WriteTextAsync(CurrentItem.StorageItem as StorageFile, Newtonsoft.Json.JsonConvert.SerializeObject(CurrentItem.JObject, Newtonsoft.Json.Formatting.Indented));
     }
-    private async void Exec_TreeItemSelected(object parameter)
+    private async void Exec_TreeItemSelected(object? parameter)
     {
         if (parameter != null)
         {
-            var treeItem = (parameter as TreeViewItemInvokedEventArgs).InvokedItem as TreeItem;
+            var treeItem = (TreeItem)((TreeViewItemInvokedEventArgs)parameter).InvokedItem;
 
             if (!string.IsNullOrEmpty(treeItem.Content))
             {
@@ -227,7 +225,9 @@ public class MainPageVM : ObservableObject
                         Orientation = Orientation.Horizontal
                     };
                     Panels.Clear();
-                    Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root, Panels.Count()) });
+
+                    if (CurrentItem.JObject is not null)
+                        Panels.Add(new SingleLayer() { DataContext = new SingleLayerVM(CurrentItem.JObject.Root, Panels.Count) });
                 }
                 catch (Exception e)
                 {
@@ -248,7 +248,7 @@ public class MainPageVM : ObservableObject
     }
     private async void Exec_NewFile()
     {
-        var dialog = new ContentDialogPlain("File Name");
+        ContentDialogPlain dialog = new("File Name");
         ContentDialogResult result = await dialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
@@ -260,7 +260,7 @@ public class MainPageVM : ObservableObject
                 {
                     StorageFile newFile = await Workspace.CreateFileAsync(fileName + ".json");
                     await FileIO.WriteTextAsync(newFile, "{}");
-                    var newItem = new TreeItem(newFile)
+                    TreeItem newItem = new(newFile)
                     {
                         Content = await FileIO.ReadTextAsync(newFile)
                     };
@@ -269,7 +269,7 @@ public class MainPageVM : ObservableObject
                 }
                 else
                 {
-                    var cd = new ContentDialog
+                    ContentDialog cd = new()
                     {
                         Title = "File already exists",
                         CloseButtonText = "Close",

@@ -9,17 +9,17 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace JSEEN.ViewModels;
 
-public class NestingButtonVM : ObservableObject
+public partial class NestingButtonVM : ObservableObject
 {
     private readonly int index;
 
-    public string CharIcon { get; private set; }
-    public string Type { get; private set; }
+    public string? CharIcon { get; private set; }
+    public string? Type { get; private set; }
     public string Name { get; private set; }
     public JToken JToken { get; private set; }
 
-    private Brush background;
-    public Brush Background { get => background; set => SetProperty(ref background, value); }
+    private Brush? background;
+    public Brush? Background { get => background; set => SetProperty(ref background, value); }
 
     public ICommand ButtonClick { get; private set; }
 
@@ -38,7 +38,7 @@ public class NestingButtonVM : ObservableObject
                 CharIcon = " [ ]";
                 Type = "array";
 
-                if (Name.Contains("."))
+                if (Name.Contains('.'))
                     Name = FindArrayName(JToken);
                 break;
 
@@ -46,12 +46,12 @@ public class NestingButtonVM : ObservableObject
                 CharIcon = " { }";
                 Type = "object";
 
-                if (Name.Contains("."))
+                if (Name.Contains('.'))
                     Name = ParseObjectName();
 
                 // arrays' new children will have path like $['{path}']
                 if (Name.StartsWith("['") && Name.EndsWith("']"))
-                    Name = Name.Substring(2, Name.Length - 4);
+                    Name = Name[2..^2];
                 break;
 
             default:
@@ -65,7 +65,7 @@ public class NestingButtonVM : ObservableObject
         // rebuild panel collection up to where the button was clicked
         if (index >= 0)
         {
-            var newPanels = new List<SingleLayer>();
+            List<SingleLayer> newPanels = [];
             for (int i = 0; i <= index; i++)
                 newPanels.Add(MainPageVM.Panels[i]);
 
@@ -79,12 +79,14 @@ public class NestingButtonVM : ObservableObject
         Background = (SolidColorBrush)Application.Current.Resources["SystemControlHighlightListAccentMediumBrush"];
     }
 
-    private string FindArrayName(JToken jToken)
+    private static string FindArrayName(JToken? jToken)
     {
         if (jToken is JProperty property)
             return property.Name;
-        else
+        else if (jToken is not null)
             return FindArrayName(jToken.Parent);
+
+        return string.Empty;
     }
     private string ParseObjectName()
     {

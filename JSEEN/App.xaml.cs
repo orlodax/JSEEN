@@ -32,5 +32,5 @@ public partial class App : Application
 
     private Window? m_window;
 
-    public static nint MainWindowHandle;
+    public static nint MainWindowHandle { get; private set; }
 }
