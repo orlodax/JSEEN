@@ -239,6 +239,12 @@ ClientBin/
 *.jfm
 *.pfx
 *.publishsettings
+*.msix
+*.msixupload
+*.appxbundle
+*.appxupload
+*.appx
+*.msixbundle
 orleans.codegen.cs
 
 # Including strong name files can present a security risk
